@@ -23,13 +23,14 @@ pub struct User {
     /// not nullable 
     /// db data type: integer
     pub user_id: i32,
+    /// unique
+    /// not nullable 
+    /// db data type: text
+    pub name: String,
     /// default: ('now'::text)::timestamp without time zone
     /// not nullable 
     /// db data type: timestamp without time zone
     pub date_created: NaiveDateTime,
-    /// not nullable 
-    /// db data type: text
-    pub name: String,
 
     /// has many
     pub backing: Vec<Backing>,
@@ -88,7 +89,7 @@ impl IsTable for User{
                     name: column::name.to_string(),
                     data_type: "String".to_string(),
                     db_data_type: "text".to_string(),
-                    is_primary: false, is_unique: false, not_null: true, is_inherited: false, 
+                    is_primary: false, is_unique: true, not_null: true, is_inherited: false, 
                     default:None,
                     comment:None,
                     foreign: None,

@@ -3,6 +3,9 @@
 pub const amount: &'static str = "amount";
 
 #[allow(non_upper_case_globals)]
+pub const card: &'static str = "card";
+
+#[allow(non_upper_case_globals)]
 pub const date_created: &'static str = "date_created";
 
 #[allow(non_upper_case_globals)]

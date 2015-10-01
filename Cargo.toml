@@ -6,6 +6,7 @@ repository = "https://github.com/kyeah/kickstarter"
 description = "The real Kickstarter application."
 
 [dependencies]
+chrono = "0.2"
 codegenta = "0.0.2"
 docopt = "0.6"
 docopt_macros = "0.6"

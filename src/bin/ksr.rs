@@ -1,8 +1,10 @@
 extern crate codegenta;
 extern crate docopt;
+extern crate toml;
 extern crate rustc_serialize;
 extern crate rustorm;
-extern crate toml;
+
+extern crate kickstarter;
 
 use docopt::Docopt;
 
@@ -11,6 +13,8 @@ use rustorm::pool::ManagedPool;
 
 use std::fs::File;
 use std::io::Read;
+
+use kickstarter::{pledge, project, Error};
 
 macro_rules! version {
     () => {
@@ -24,7 +28,7 @@ macro_rules! version {
 
 const ERR_MISSING_CONFIG: &'static str = "Missing data/config.toml!";
 const ERR_READING_CONFIG: &'static str = "Failed to read configuration into String!";
-const ERR_PARSING_CONFIG: &'static str = "Parse errors in configuration: {:?}";
+const ERR_PARSING_CONFIG: &'static str = "Failed to parse configuration file";
 const ERR_MISSING_URI: &'static str = "Configuration has no database connection string 'db.uri'";
 
 const USAGE: &'static str = "
@@ -32,7 +36,7 @@ The Real Kickstarter.
 
 Usage:
     ksr project <name> <amount>
-    ksr back    <user> <name> <amount>
+    ksr back    <user> <name> <card> <amount>
     ksr list    <name>
     ksr backer  <user>
     ksr (-h | --help)
@@ -73,6 +77,7 @@ struct Args {
     cmd_backer: bool,
     arg_user: Option<String>,
     arg_name: Option<String>,
+    arg_card: Option<String>,
     arg_amount: Option<f64>,
     flag_version: bool,
     flag_sync: bool,
@@ -95,7 +100,7 @@ fn main() {
     f.read_to_string(&mut toml).ok().expect(ERR_READING_CONFIG);
 
     let mut parser = toml::Parser::new(&mut toml);
-    let config = parser.parse().expect(&format!(ERR_PARSING_CONFIG, parser.errors));
+    let config = parser.parse().expect(&format!("{}: {:?}", ERR_PARSING_CONFIG, parser.errors));
 
     // Retrieve and open database connection uri
     let uri = match config.get("uri") {
@@ -113,7 +118,7 @@ fn main() {
             include_table_references: true,
             use_condensed_name: true,
             generate_table_meta: true,
-            base_dir: "./src/lib/".to_string(),
+            base_dir: "./src".to_string(),
             include_views: true,
         };
 
@@ -121,18 +126,19 @@ fn main() {
     }
 
     if args.cmd_project {
-        
-    }
+        let project = project::create(args.arg_name.unwrap(), 
+                                      args.arg_amount.unwrap())
+            .unwrap();
 
-    if args.cmd_back {
-        
-    }
+    } else if args.cmd_back {
+        let project = pledge::create(args.arg_user.unwrap(), args.arg_name.unwrap(), 
+                                     args.arg_card.unwrap(), args.arg_amount.unwrap())
+            .unwrap();
 
-    if args.cmd_list {
-        
-    }
+    } else if args.cmd_list {
+        let backers = project::list_backers(args.arg_name.unwrap()).unwrap();
 
-    if args.cmd_backer {
-        
+    } else if args.cmd_backer {
+        let projects = pledge::list_backed(args.arg_user.unwrap()).unwrap();
     }
 }
