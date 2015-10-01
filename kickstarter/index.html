@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `kickstarter` crate.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, kickstarter">
+
+    <title>kickstarter - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <section class="sidebar">
+        
+        <p class='location'></p><script>window.sidebarCurrent = {name: 'kickstarter', ty: 'mod', relpath: '../'};</script>
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content mod">
+<h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>kickstarter</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-0' class='srclink' href='../src/kickstarter/lib.rs.html#1-64' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'>
+<h1 id="the-real-kickstarter" class='section-header'><a
+                           href="#the-real-kickstarter">The Real Kickstarter</a></h1>
+<p>A mini-kickstarter client.</p>
+
+<h2 id="usage" class='section-header'><a
+                           href="#usage">Usage</a></h2>
+<p>The Client is our entry-point to interacting with our Kickstarter application.</p>
+<pre class='rust rust-example-rendered'>
+<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>kickstarter</span>;
+<span class='kw'>use</span> <span class='ident'>kickstarter</span>::<span class='ident'>Client</span>;
+<span class='kw'>fn</span> <span class='ident'>main</span>() {
+    <span class='kw'>let</span> <span class='ident'>client</span> <span class='op'>=</span> <span class='ident'>Client</span>::<span class='ident'>new</span>(<span class='string'>&quot;postgres://user:pass@localhost:5432/kickstarter&quot;</span>, 
+                             <span class='string'>&quot;kickstarter&quot;</span>).<span class='ident'>unwrap</span>();
+
+    <span class='kw'>let</span> <span class='ident'>project</span> <span class='op'>=</span> <span class='ident'>client</span>.<span class='ident'>create_project</span>(<span class='string'>&quot;Meditation_Witchcraft&quot;</span>, <span class='number'>520.25f64</span>).<span class='ident'>unwrap</span>();
+    <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Created project {}!&quot;</span>, <span class='ident'>project</span>.<span class='ident'>name</span>);
+
+    <span class='kw'>let</span> <span class='ident'>pledge</span> <span class='op'>=</span> <span class='ident'>client</span>.<span class='ident'>back_project</span>(<span class='string'>&quot;JHernandez&quot;</span>, <span class='string'>&quot;Meditation_Witchcraft&quot;</span>, 
+                                     <span class='string'>&quot;4298708533045499&quot;</span>, <span class='number'>10f64</span>).<span class='ident'>unwrap</span>();
+
+    <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Backed for ${:.2}!&quot;</span>, <span class='ident'>pledge</span>.<span class='ident'>amount</span>);
+
+    <span class='kw'>let</span> (<span class='ident'>backers</span>, <span class='ident'>goal</span>) <span class='op'>=</span> <span class='ident'>client</span>.<span class='ident'>list_backers</span>(<span class='string'>&quot;Meditation_Witchcraft&quot;</span>).<span class='ident'>unwrap</span>();
+    <span class='kw'>for</span> (<span class='ident'>backer</span>, <span class='ident'>contribution</span>) <span class='kw'>in</span> <span class='ident'>backers</span> {
+        <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;{} backed for ${:.2}.&quot;</span>, <span class='ident'>backer</span>.<span class='ident'>name</span>, <span class='ident'>contribution</span>);
+    }
+     
+    <span class='kw'>let</span> <span class='ident'>results</span> <span class='op'>=</span> <span class='ident'>client</span>.<span class='ident'>list_backed_projects</span>(<span class='string'>&quot;JHernandez&quot;</span>).<span class='ident'>unwrap</span>();
+    <span class='kw'>for</span> (<span class='ident'>project_name</span>, <span class='ident'>pledge</span>) <span class='kw'>in</span> <span class='ident'>results</span> {
+        <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;JHernandez backed {} for ${:.2}.&quot;</span>, <span class='ident'>project_name</span>, <span class='ident'>pledge</span>.<span class='ident'>amount</span>);
+    }
+
+    <span class='kw'>let</span> <span class='ident'>all_projects</span> <span class='op'>=</span> <span class='ident'>client</span>.<span class='ident'>list_projects</span>().<span class='ident'>unwrap</span>();
+    <span class='kw'>for</span> <span class='ident'>project</span> <span class='kw'>in</span> <span class='ident'>all_projects</span> {
+        <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;{} is raising ${:.2}.&quot;</span>, <span class='ident'>project</span>.<span class='ident'>name</span>, <span class='ident'>project</span>.<span class='ident'>goal</span>);
+    }
+}</pre>
+</div><h2 id='reexports' class='section-header'><a href="#reexports">Reexports</a></h2>
+<table><tr><td><code>pub use db::<a class='mod' href='../kickstarter/db/kickstarter/index.html' title='kickstarter::db::kickstarter'>kickstarter</a> as models;</code></td></tr></table><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='db/index.html'
+                               title='kickstarter::db'>db</a></td>
+                        <td class='docblock short'>
+                             
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='pledge/index.html'
+                               title='kickstarter::pledge'>pledge</a></td>
+                        <td class='docblock short'>
+                             <p>Module for interacting with Kickstarter pledges.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='project/index.html'
+                               title='kickstarter::project'>project</a></td>
+                        <td class='docblock short'>
+                             <p>Module for interacting with Kickstarter projects.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='user/index.html'
+                               title='kickstarter::user'>user</a></td>
+                        <td class='docblock short'>
+                             <p>User implementation</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='mod' href='validate/index.html'
+                               title='kickstarter::validate'>validate</a></td>
+                        <td class='docblock short'>
+                             <p>Kickstarter data validations</p>
+
+                        </td>
+                    </tr>
+                </table><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='struct' href='struct.Client.html'
+                               title='kickstarter::Client'>Client</a></td>
+                        <td class='docblock short'>
+                             <p>Interfaces with a Kickstarter application running on a PostgreSQL database.</p>
+
+                        </td>
+                    </tr>
+                </table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='enum' href='enum.Error.html'
+                               title='kickstarter::Error'>Error</a></td>
+                        <td class='docblock short'>
+                             <p>The error type for Kickstarter operations.</p>
+
+                        </td>
+                    </tr>
+                </table><h2 id='types' class='section-header'><a href="#types">Type Definitions</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='type' href='type.Result.html'
+                               title='kickstarter::Result'>Result</a></td>
+                        <td class='docblock short'>
+                             <p>A type for results generated by Kickstarter-related functions, where the Err type is kickstarter::Error.</p>
+
+                        </td>
+                    </tr>
+                </table></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <div id="help" class="hidden">
+        <div>
+            <div class="shortcuts">
+                <h1>Keyboard Shortcuts</h1>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h1>Search Tricks</h1>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>typedef</code> (or
+                    <code>tdef</code>).
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "kickstarter";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script async src="../search-index.js"></script>
+</body>
+</html>

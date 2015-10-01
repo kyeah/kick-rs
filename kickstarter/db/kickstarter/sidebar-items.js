@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["pledge","WARNING: This file is generated, derived from table kickstarter.pledge, DO NOT EDIT"],["project","WARNING: This file is generated, derived from table kickstarter.project, DO NOT EDIT"],["user","WARNING: This file is generated, derived from table kickstarter.user, DO NOT EDIT"]]});

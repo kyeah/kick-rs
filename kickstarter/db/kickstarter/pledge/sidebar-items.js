@@ -1,0 +1,1 @@
+initSidebarItems({"static":[["amount",""],["card",""],["date_created",""],["project_id",""],["user_id",""]],"struct":[["Pledge",""]]});

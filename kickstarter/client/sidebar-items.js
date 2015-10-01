@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Client","Interfaces with a Kickstarter application running on a PostgreSQL database."]]});

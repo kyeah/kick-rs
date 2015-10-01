@@ -1,0 +1,1 @@
+initSidebarItems({"static":[["date_created",""],["name",""],["user_id",""]],"struct":[["User",""]]});

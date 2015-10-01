@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["amount",""],["card",""],["date_created",""],["goal",""],["name",""],["project_id",""],["user_id",""]]});

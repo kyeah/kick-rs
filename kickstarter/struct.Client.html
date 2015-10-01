@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Client` struct in crate `kickstarter`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Client">
+
+    <title>kickstarter::Client - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <section class="sidebar">
+        
+        <p class='location'><a href='index.html'>kickstarter</a></p><script>window.sidebarCurrent = {name: 'Client', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>kickstarter</a>::<wbr><a class='struct' href=''>Client</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-4861' class='srclink' href='../src/kickstarter/client.rs.html#25-32' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Client {
+    pub uri: <a class='struct' href='http://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>,
+    pub schema: <a class='struct' href='http://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>,
+    // some fields omitted
+}</pre><div class='docblock'><p>Interfaces with a Kickstarter application running on a PostgreSQL database.</p>
+</div><h2 class='fields'>Fields</h2>
+<table><tr class='stab '>
+                                  <td id='structfield.uri'><code>uri</code></td><td><div class='docblock'><p>PostgreSQL connection URI.</p>
+</div></td></tr><tr class='stab '>
+                                  <td id='structfield.schema'><code>schema</code></td><td><div class='docblock'><p>Database schema name for kickstarter data.</p>
+</div></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../kickstarter/struct.Client.html' title='kickstarter::Client'>Client</a></code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(uri: &amp;<a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>, schema: &amp;<a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='type' href='../kickstarter/type.Result.html' title='kickstarter::Result'>Result</a>&lt;<a class='struct' href='../kickstarter/struct.Client.html' title='kickstarter::Client'>Client</a>&gt;</code></h4>
+<div class='docblock'><p>Creates a new Kickstarter client, connecting to the specified PostgreSQL uri and database schema.</p>
+</div><h4 id='method.with_config' class='method'><code>fn <a href='#method.with_config' class='fnname'>with_config</a>(filename: &amp;<a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>, bootstrap: <a href='http://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>, sync: <a href='http://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; <a class='type' href='../kickstarter/type.Result.html' title='kickstarter::Result'>Result</a>&lt;<a class='struct' href='../kickstarter/struct.Client.html' title='kickstarter::Client'>Client</a>&gt;</code></h4>
+<div class='docblock'><p>Creates a new Kickstarter client using the provided .toml configuration filename.
+If bootstrap is true, the client will wipe and recreate the database
+using the sql_file specified in the configuration.</p>
+</div><h4 id='method.db' class='method'><code>fn <a href='#method.db' class='fnname'>db</a>(&amp;self) -&gt; &amp;<a class='trait' href='../rustorm/database/trait.Database.html' title='rustorm::database::Database'>Database</a></code></h4>
+<div class='docblock'><p>Returns a reference to the encapsulated database.</p>
+</div><h4 id='method.table' class='method'><code>fn <a href='#method.table' class='fnname'>table</a>(&amp;self, table: &amp;<a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='http://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a></code></h4>
+<div class='docblock'><p>Returns the full table namespace.</p>
+</div><h4 id='method.table_abbr' class='method'><code>fn <a href='#method.table_abbr' class='fnname'>table_abbr</a>(&amp;self, table: &amp;<a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='struct' href='http://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a></code></h4>
+<div class='docblock'><p>Returns the full table namespace, abbreviated with the first two letters.</p>
+</div><h4 id='method.sync' class='method'><code>fn <a href='#method.sync' class='fnname'>sync</a>(&amp;self)</code></h4>
+<div class='docblock'><p>Syncs generated models in src/lib/gen with database tables.</p>
+</div><h4 id='method.create_project' class='method'><code>fn <a href='#method.create_project' class='fnname'>create_project</a>(&amp;self, project_name: &amp;<a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>, amount: <a href='http://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>) -&gt; <a class='type' href='../kickstarter/type.Result.html' title='kickstarter::Result'>Result</a>&lt;<a class='struct' href='../kickstarter/db/kickstarter/project/struct.Project.html' title='kickstarter::db::kickstarter::project::Project'>Project</a>&gt;</code></h4>
+<div class='docblock'><p>Creates a new Kickstarter project with the specified name and goal amount in US dollars.</p>
+</div><h4 id='method.back_project' class='method'><code>fn <a href='#method.back_project' class='fnname'>back_project</a>(&amp;self, user: &amp;<a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>, project_name: &amp;<a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>, card: &amp;<a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>, amount: <a href='http://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>) -&gt; <a class='type' href='../kickstarter/type.Result.html' title='kickstarter::Result'>Result</a>&lt;<a class='struct' href='../kickstarter/db/kickstarter/pledge/struct.Pledge.html' title='kickstarter::db::kickstarter::pledge::Pledge'>Pledge</a>&gt;</code></h4>
+<div class='docblock'><p>Backs an existing Kickstarter project with the specified user, credit card, and contribution amount.</p>
+</div><h4 id='method.list_backers' class='method'><code>fn <a href='#method.list_backers' class='fnname'>list_backers</a>(&amp;self, project_name: &amp;<a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='type' href='../kickstarter/type.Result.html' title='kickstarter::Result'>Result</a>&lt;<a href='http://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='struct' href='http://doc.rust-lang.org/nightly/collections/btree/map/struct.BTreeMap.html' title='collections::btree::map::BTreeMap'>BTreeMap</a>&lt;<a class='struct' href='../kickstarter/db/kickstarter/user/struct.User.html' title='kickstarter::db::kickstarter::user::User'>User</a>, <a href='http://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>&gt;, <a href='http://doc.rust-lang.org/nightly/std/primitive.f64.html'>f64</a>)</a>&gt;</code></h4>
+<div class='docblock'><p>Returns a map of all backers and their contributions
+towards a project, along with the project&#39;s goal amount.</p>
+</div><h4 id='method.list_projects' class='method'><code>fn <a href='#method.list_projects' class='fnname'>list_projects</a>(&amp;self) -&gt; <a class='type' href='../kickstarter/type.Result.html' title='kickstarter::Result'>Result</a>&lt;<a class='struct' href='http://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='../kickstarter/db/kickstarter/project/struct.Project.html' title='kickstarter::db::kickstarter::project::Project'>Project</a>&gt;&gt;</code></h4>
+<div class='docblock'><p>Returns a list of all projects on Kickstarter.</p>
+</div><h4 id='method.list_backed_projects' class='method'><code>fn <a href='#method.list_backed_projects' class='fnname'>list_backed_projects</a>(&amp;self, user: &amp;<a href='http://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='type' href='../kickstarter/type.Result.html' title='kickstarter::Result'>Result</a>&lt;<a class='struct' href='http://doc.rust-lang.org/nightly/collections/btree/map/struct.BTreeMap.html' title='collections::btree::map::BTreeMap'>BTreeMap</a>&lt;<a class='struct' href='http://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>, <a class='struct' href='../kickstarter/db/kickstarter/pledge/struct.Pledge.html' title='kickstarter::db::kickstarter::pledge::Pledge'>Pledge</a>&gt;&gt;</code></h4>
+<div class='docblock'><p>Returns a map of all Kickstarter projects backed by a user, along with the pledge information.</p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <div id="help" class="hidden">
+        <div>
+            <div class="shortcuts">
+                <h1>Keyboard Shortcuts</h1>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h1>Search Tricks</h1>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>typedef</code> (or
+                    <code>tdef</code>).
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "kickstarter";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script async src="../search-index.js"></script>
+</body>
+</html>
