@@ -1,8 +1,16 @@
-extern crate rustc_serialize;
+extern crate codegenta;
 extern crate docopt;
+extern crate rustc_serialize;
+extern crate rustorm;
+extern crate toml;
 
-use std::error::Error;
 use docopt::Docopt;
+
+use codegenta::generator::{self, Config};
+use rustorm::pool::ManagedPool;
+
+use std::fs::File;
+use std::io::Read;
 
 macro_rules! version {
     () => {
@@ -14,6 +22,11 @@ macro_rules! version {
     }
 }
 
+const ERR_MISSING_CONFIG: &'static str = "Missing data/config.toml!";
+const ERR_READING_CONFIG: &'static str = "Failed to read configuration into String!";
+const ERR_PARSING_CONFIG: &'static str = "Parse errors in configuration: {:?}";
+const ERR_MISSING_URI: &'static str = "Configuration has no database connection string 'db.uri'";
+
 const USAGE: &'static str = "
 The Real Kickstarter.
 
@@ -23,11 +36,13 @@ Usage:
     ksr list    <name>
     ksr backer  <user>
     ksr (-h | --help)
+    ksr (-s | --sync)
     ksr (-v | --version)
 
 Options:
     -h --help      Show this message
     -v --version   Show version
+    -s --sync      Sync generated models with db tables
 
 Commands:
     project    Create a new project
@@ -60,16 +75,49 @@ struct Args {
     arg_name: Option<String>,
     arg_amount: Option<f64>,
     flag_version: bool,
+    flag_sync: bool,
 }
 
 fn main() {
     let args: Args = Docopt::new(USAGE)
         .and_then(|d| d.decode())
         .unwrap_or_else(|e| e.exit());
-
+    
     if args.flag_version {
         println!("{}", version!());
         return;
+    }
+
+    // Open config file
+    let mut f = File::open("data/config.toml").ok().expect(ERR_MISSING_CONFIG);
+
+    let mut toml = String::new();
+    f.read_to_string(&mut toml).ok().expect(ERR_READING_CONFIG);
+
+    let mut parser = toml::Parser::new(&mut toml);
+    let config = parser.parse().expect(&format!(ERR_PARSING_CONFIG, parser.errors));
+
+    // Retrieve and open database connection uri
+    let uri = match config.get("uri") {
+        Some(ref uri) => uri.as_str().unwrap(),
+        None => panic!(ERR_MISSING_URI),
+    };
+
+    let pool = ManagedPool::init(uri, 1).unwrap();
+    let db = pool.connect().unwrap();
+
+    // Sync generated models in src/lib/gen with database tables.
+    if args.flag_sync {
+        let config = Config {
+            base_module: Some("gen".to_string()),
+            include_table_references: true,
+            use_condensed_name: true,
+            generate_table_meta: true,
+            base_dir: "./src/lib/".to_string(),
+            include_views: true,
+        };
+
+        generator::generate_all(db.as_dev(), &config);
     }
 
     if args.cmd_project {

@@ -6,5 +6,9 @@ repository = "https://github.com/kyeah/kickstarter"
 description = "The real Kickstarter application."
 
 [dependencies]
+codegenta = "0.0.2"
 docopt = "0.6"
+docopt_macros = "0.6"
 rustc-serialize = "0.3"
+rustorm = "0.1"
+toml = "0.1"
