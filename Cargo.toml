@@ -1,0 +1,10 @@
+[package]
+name = "kickstarter"
+version = "0.1.0"
+authors = ["Kevin Yeh <kevinyeah@utexas.edu>"]
+repository = "https://github.com/kyeah/kickstarter"
+description = "The real Kickstarter application."
+
+[dependencies]
+docopt = "0.6"
+rustc-serialize = "0.3"
