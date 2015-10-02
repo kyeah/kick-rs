@@ -7,15 +7,14 @@ use rustorm::database::Database;
 use rustorm::pool::{ManagedPool, Platform};
 
 use ::{Error, Result};
-use ::models::{Pledge, Project};
-use ::models::user::{self, User};
+use ::models::{Pledge, Project, User};
 
 const ERR_PARSING_CONFIG: &'static str = "Failed to parse configuration file";
 const ERR_MISSING_URI: &'static str = "Configuration has no database connection string 'uri'";
 
 pub struct Client {
-    uri: String,
-    schema: String,
+    pub uri: String,
+    pub schema: String,
     db: Platform,
 }
 

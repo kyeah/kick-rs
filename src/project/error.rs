@@ -7,6 +7,7 @@ pub enum Error {
     NameNotAlphaNumeric,
     NameLength,
     InvalidAmount,
+    ProjectDoesNotExist,
 }
 
 impl fmt::Display for Error {
@@ -21,6 +22,7 @@ impl ErrorTrait for Error {
             Error::NameNotAlphaNumeric => "Project name should be alphanumeric and contain only underscores or dashes.",
             Error::NameLength => "Project name should be between 4 and 20 characters.",
             Error::InvalidAmount => "Goal amount must be greater than 0 dollars.",
+            Error::ProjectDoesNotExist => "The project you are trying to back does not exist :(",
         }
     }
 

@@ -11,6 +11,7 @@ extern crate toml;
 
 pub mod pledge;
 pub mod project;
+pub mod user;
 
 mod client;
 mod error;

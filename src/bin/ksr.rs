@@ -3,7 +3,7 @@ extern crate rustc_serialize;
 extern crate kickstarter;
 
 use docopt::Docopt;
-use kickstarter::{pledge, project, Client, Error};
+use kickstarter::{Client, Error};
 
 const USAGE: &'static str = "
 The Real Kickstarter.
