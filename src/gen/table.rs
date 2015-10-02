@@ -1,6 +1,6 @@
 
 #[allow(non_upper_case_globals)]
-pub const backing: &'static str = "backing";
+pub const pledge: &'static str = "pledge";
 
 #[allow(non_upper_case_globals)]
 pub const project: &'static str = "project";

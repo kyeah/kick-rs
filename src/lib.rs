@@ -1,13 +1,19 @@
 extern crate chrono;
+extern crate codegenta;
 extern crate rustc_serialize;
 extern crate rustorm;
+extern crate toml;
 
+pub mod client;
 pub mod pledge;
 pub mod project;
 pub mod gen;
 
 pub use gen::kickstarter as models;
-use std::{error, fmt, result};
+pub use client::Client;
+
+use rustorm::database;
+use std::{error, fmt, io, result};
 
 pub type Result<T> = result::Result<T, Error>;
 
@@ -15,6 +21,8 @@ pub type Result<T> = result::Result<T, Error>;
 pub enum Error {
     InvalidPledge(pledge::Error),
     InvalidProject(project::Error),
+    Database(database::DbError),
+    IO(io::Error),
 }
 
 impl<'a> From<pledge::Error> for Error {
@@ -29,11 +37,25 @@ impl<'a> From<project::Error> for Error {
     }
 }
 
+impl<'a> From<database::DbError> for Error {
+    fn from(err: database::DbError) -> Error {
+        Error::Database(err)
+    }
+}
+
+impl<'a> From<io::Error> for Error {
+    fn from(err: io::Error) -> Error {
+        Error::IO(err)
+    }
+}
+
 impl fmt::Display for Error {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Error::InvalidPledge(ref inner) => inner.fmt(fmt),            
             Error::InvalidProject(ref inner) => inner.fmt(fmt),
+            Error::Database(ref inner) => inner.fmt(fmt),
+            Error::IO(ref inner) => inner.fmt(fmt),
         }
     }
 }
@@ -43,6 +65,8 @@ impl error::Error for Error {
         match *self {
             Error::InvalidPledge(ref inner) => inner.description(),
             Error::InvalidProject(ref inner) => inner.description(),
+            Error::Database(ref inner) => inner.description(),
+            Error::IO(ref inner) => inner.description(),
         }
     }
 
@@ -50,6 +74,8 @@ impl error::Error for Error {
         match *self {
             Error::InvalidPledge(ref inner) => Some(inner),
             Error::InvalidProject(ref inner) => Some(inner),
+            Error::Database(ref inner) => Some(inner),
+            Error::IO(ref inner) => Some(inner),
         }
     }
 }

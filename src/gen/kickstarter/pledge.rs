@@ -1,4 +1,4 @@
-//! WARNING: This file is generated, derived from table kickstarter.backing, DO NOT EDIT
+//! WARNING: This file is generated, derived from table kickstarter.pledge, DO NOT EDIT
 
 use chrono::naive::datetime::NaiveDateTime;
 use gen::kickstarter::Project;
@@ -19,7 +19,7 @@ use rustc_serialize::json::Json;
 
 #[derive(RustcDecodable, RustcEncodable)]
 #[derive(Debug, Clone)]
-pub struct Backing {
+pub struct Pledge {
     /// primary
     /// not nullable 
     /// db data type: integer
@@ -48,9 +48,9 @@ pub struct Backing {
 
 
 
-impl IsDao for Backing{
+impl IsDao for Pledge{
     fn from_dao(dao:&Dao)->Self{
-        Backing{
+        Pledge{
             user_id: dao.get(column::user_id),
             project_id: dao.get(column::project_id),
             amount: dao.get(column::amount),
@@ -72,20 +72,20 @@ impl IsDao for Backing{
     }
 }
 
-impl ToJson for Backing{
+impl ToJson for Pledge{
 
     fn to_json(&self)->Json{
         self.to_dao().to_json()
     }
 }
 
-impl IsTable for Backing{
+impl IsTable for Pledge{
 
     fn table()->Table{
     
         Table{
             schema: schema::kickstarter.to_string(),
-            name: table::backing.to_string(),
+            name: table::pledge.to_string(),
             parent_table: None,
             sub_table: vec![],
             comment: None,
@@ -155,20 +155,20 @@ impl IsTable for Backing{
 
 #[allow(non_upper_case_globals)]
 #[allow(dead_code)]
-pub static user_id: &'static str = "backing.user_id";
+pub static user_id: &'static str = "pledge.user_id";
 
 #[allow(non_upper_case_globals)]
 #[allow(dead_code)]
-pub static project_id: &'static str = "backing.project_id";
+pub static project_id: &'static str = "pledge.project_id";
 
 #[allow(non_upper_case_globals)]
 #[allow(dead_code)]
-pub static amount: &'static str = "backing.amount";
+pub static amount: &'static str = "pledge.amount";
 
 #[allow(non_upper_case_globals)]
 #[allow(dead_code)]
-pub static card: &'static str = "backing.card";
+pub static card: &'static str = "pledge.card";
 
 #[allow(non_upper_case_globals)]
 #[allow(dead_code)]
-pub static date_created: &'static str = "backing.date_created";
+pub static date_created: &'static str = "pledge.date_created";

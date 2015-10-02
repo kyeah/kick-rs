@@ -1,7 +1,7 @@
 //! WARNING: This file is generated, derived from table kickstarter.project, DO NOT EDIT
 
 use chrono::naive::datetime::NaiveDateTime;
-use gen::kickstarter::Backing;
+use gen::kickstarter::Pledge;
 use rustorm::dao::Dao;
 use rustorm::dao::IsDao;
 use gen::schema;
@@ -36,7 +36,7 @@ pub struct Project {
     pub goal: f64,
 
     /// has many
-    pub backing: Vec<Backing>,
+    pub pledge: Vec<Pledge>,
 }
 
 
@@ -48,7 +48,7 @@ impl IsDao for Project{
             name: dao.get(column::name),
             goal: dao.get(column::goal),
             date_created: dao.get(column::date_created),
-            backing: vec![],
+            pledge: vec![],
         }
     }
 
