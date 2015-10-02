@@ -58,11 +58,17 @@ impl Pledge {
             .into_table(&client.table(table::pledge))
             .execute(client.db());
 
+        // Check for uniqueness violations.
         if let Err(ref err) = res {
             if let Some(SqlState::UniqueViolation) = err.code {
+
+                // Primary key is (user_id, project_id).
                 let message = if err.description().contains(&"pkey") {
                     format!("User '{}' has already backed project '{}'.", user, project_name)
-                } else {
+                        
+                // Only other uniqueness constraint is on the credit card,
+                // but lets check the description to be sure.
+                } else if err.description().contains(&"pledge_project_card") {
                     format!("Credit card '{}' has already been used to back project '{}'.", card, project_name)
                 };
 
@@ -71,6 +77,7 @@ impl Pledge {
             }
         }
 
-        Ok(try!(res))
+        let num_affected = try!(res);
+        Ok(num_affected)
     }
 }
