@@ -1,17 +1,15 @@
-//! WARNING: This file is generated, derived from table kickstarter.pledge, DO NOT EDIT
+//! WARNING: This file is generated, derived from table kickstarter.project, DO NOT EDIT
 
 use chrono::naive::datetime::NaiveDateTime;
-use gen::kickstarter::Project;
-use gen::kickstarter::User;
+use db::kickstarter::Pledge;
 use rustorm::dao::Dao;
 use rustorm::dao::IsDao;
-use gen::schema;
-use gen::table;
-use gen::column;
+use db::schema;
+use db::table;
+use db::column;
 use rustorm::table::IsTable;
 use rustorm::table::Column;
 use rustorm::table::Table;
-use rustorm::table::Foreign;
 use rustc_serialize::json::ToJson;
 use rustc_serialize::json::Json;
 
@@ -19,120 +17,93 @@ use rustc_serialize::json::Json;
 
 #[derive(RustcDecodable, RustcEncodable)]
 #[derive(Debug, Clone)]
-pub struct Pledge {
+pub struct Project {
     /// primary
+    /// default: nextval('kickstarter.project_project_id_seq'::regclass)
     /// not nullable 
     /// db data type: integer
     pub project_id: i32,
-    /// primary
-    /// not nullable 
-    /// db data type: integer
-    pub user_id: i32,
     /// unique
     /// not nullable 
     /// db data type: text
-    pub card: String,
-    /// not nullable 
-    /// db data type: numeric
-    pub amount: f64,
+    pub name: String,
     /// default: ('now'::text)::timestamp without time zone
     /// not nullable 
     /// db data type: timestamp without time zone
     pub date_created: NaiveDateTime,
+    /// not nullable 
+    /// db data type: double precision
+    pub goal: f64,
 
-    /// has one
-    pub user: Option<User>,
-    /// has one
-    pub project: Option<Project>,
+    /// has many
+    pub pledge: Vec<Pledge>,
 }
 
 
 
-impl IsDao for Pledge{
+impl IsDao for Project{
     fn from_dao(dao:&Dao)->Self{
-        Pledge{
-            user_id: dao.get(column::user_id),
+        Project{
             project_id: dao.get(column::project_id),
-            amount: dao.get(column::amount),
-            card: dao.get(column::card),
+            name: dao.get(column::name),
+            goal: dao.get(column::goal),
             date_created: dao.get(column::date_created),
-            user: None,
-            project: None,
+            pledge: vec![],
         }
     }
 
     fn to_dao(&self)->Dao{
         let mut dao = Dao::new();
-        dao.set(column::user_id, &self.user_id);
         dao.set(column::project_id, &self.project_id);
-        dao.set(column::amount, &self.amount);
-        dao.set(column::card, &self.card);
+        dao.set(column::name, &self.name);
+        dao.set(column::goal, &self.goal);
         dao.set(column::date_created, &self.date_created);
         dao
     }
 }
 
-impl ToJson for Pledge{
+impl ToJson for Project{
 
     fn to_json(&self)->Json{
         self.to_dao().to_json()
     }
 }
 
-impl IsTable for Pledge{
+impl IsTable for Project{
 
     fn table()->Table{
     
         Table{
             schema: schema::kickstarter.to_string(),
-            name: table::pledge.to_string(),
+            name: table::project.to_string(),
             parent_table: None,
             sub_table: vec![],
             comment: None,
             columns:
             vec![
                 Column{
-                    name: column::user_id.to_string(),
-                    data_type: "i32".to_string(),
-                    db_data_type: "integer".to_string(),
-                    is_primary: true, is_unique: false, not_null: true, is_inherited: false, 
-                    default:None,
-                    comment:None,
-                    foreign: Some(
-                        Foreign{
-                            schema:"kickstarter".to_string(),
-                            table:"user".to_string(),
-                            column:"user_id".to_string(),
-                        }),
-                },
-                Column{
                     name: column::project_id.to_string(),
                     data_type: "i32".to_string(),
                     db_data_type: "integer".to_string(),
                     is_primary: true, is_unique: false, not_null: true, is_inherited: false, 
-                    default:None,
+                    default:Some("nextval('kickstarter.project_project_id_seq'::regclass)".to_string()),
                     comment:None,
-                    foreign: Some(
-                        Foreign{
-                            schema:"kickstarter".to_string(),
-                            table:"project".to_string(),
-                            column:"project_id".to_string(),
-                        }),
+                    foreign: None,
                 },
                 Column{
-                    name: column::amount.to_string(),
-                    data_type: "f64".to_string(),
-                    db_data_type: "numeric".to_string(),
+                    name: column::name.to_string(),
+                    data_type: "String".to_string(),
+                    db_data_type: "text".to_string(),
                     is_primary: false, is_unique: false, not_null: true, is_inherited: false, 
                     default:None,
                     comment:None,
                     foreign: None,
                 },
                 Column{
-                    name: column::card.to_string(),
-                    data_type: "String".to_string(),
-                    db_data_type: "text".to_string(),
-                    is_primary: false, is_unique: true, not_null: true, is_inherited: false, 
+                    name: column::goal.to_string(),
+                    data_type: "f64".to_string(),
+                    db_data_type: "double precision".to_string(),
+                    is_primary: false, is_unique: false, not_null: true, is_inherited: false, 
                     default:None,
                     comment:None,
                     foreign: None,
@@ -155,20 +126,16 @@ impl IsTable for Pledge{
 
 #[allow(non_upper_case_globals)]
 #[allow(dead_code)]
-pub static user_id: &'static str = "pledge.user_id";
+pub static project_id: &'static str = "project.project_id";
 
 #[allow(non_upper_case_globals)]
 #[allow(dead_code)]
-pub static project_id: &'static str = "pledge.project_id";
+pub static name: &'static str = "project.name";
 
 #[allow(non_upper_case_globals)]
 #[allow(dead_code)]
-pub static amount: &'static str = "pledge.amount";
+pub static goal: &'static str = "project.goal";
 
 #[allow(non_upper_case_globals)]
 #[allow(dead_code)]
-pub static card: &'static str = "pledge.card";
-
-#[allow(non_upper_case_globals)]
-#[allow(dead_code)]
-pub static date_created: &'static str = "pledge.date_created";
+pub static date_created: &'static str = "project.date_created";

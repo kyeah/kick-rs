@@ -6,6 +6,7 @@ use std::fmt;
 pub enum Error {
     NameNotAlphaNumeric,
     NameLength,
+    InvalidAmount,
 }
 
 impl fmt::Display for Error {
@@ -19,6 +20,7 @@ impl ErrorTrait for Error {
         match *self {
             Error::NameNotAlphaNumeric => "Project name should be alphanumeric and contain only underscores or dashes.",
             Error::NameLength => "Project name should be between 4 and 20 characters.",
+            Error::InvalidAmount => "Goal amount must be greater than 0 dollars.",
         }
     }
 

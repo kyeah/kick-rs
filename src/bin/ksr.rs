@@ -5,21 +5,6 @@ extern crate kickstarter;
 use docopt::Docopt;
 use kickstarter::{pledge, project, Client, Error};
 
-macro_rules! version {
-    () => {
-        format!("{}.{}.{}{}",
-                env!("CARGO_PKG_VERSION_MAJOR"),
-                env!("CARGO_PKG_VERSION_MINOR"),
-                env!("CARGO_PKG_VERSION_PATCH"),
-                option_env!("CARGO_PKG_VERSION_PRE").unwrap_or(""))
-    }
-}
-
-const ERR_MISSING_CONFIG: &'static str = "Missing data/config.toml!";
-const ERR_READING_CONFIG: &'static str = "Failed to read configuration into String!";
-const ERR_PARSING_CONFIG: &'static str = "Failed to parse configuration file";
-const ERR_MISSING_URI: &'static str = "Configuration has no database connection string 'db.uri'";
-
 const USAGE: &'static str = "
 The Real Kickstarter.
 
@@ -58,6 +43,23 @@ Examples:
       $ Jorge backed project Sensel_Control_Pad for $300.00
 ";
 
+macro_rules! version {
+    () => {
+        format!("{}.{}.{}{}",
+                env!("CARGO_PKG_VERSION_MAJOR"),
+                env!("CARGO_PKG_VERSION_MINOR"),
+                env!("CARGO_PKG_VERSION_PATCH"),
+                option_env!("CARGO_PKG_VERSION_PRE").unwrap_or(""))
+    }
+}
+
+macro_rules! try_return {
+    ($expr:expr) => (match $expr {
+        std::result::Result::Ok(val) => val,
+        std::result::Result::Err(err) => { println!("ERROR: {}", err); return; },
+    })
+}
+
 #[derive(Debug, RustcDecodable)]
 struct Args {
     cmd_project: bool,
@@ -76,7 +78,7 @@ fn main() {
     let args: Args = Docopt::new(USAGE)
         .and_then(|d| d.decode())
         .unwrap_or_else(|e| e.exit());
-    
+
     if args.flag_version {
         println!("{}", version!());
         return;
@@ -89,19 +91,23 @@ fn main() {
     }
 
     if args.cmd_project {
-        let project = client.create_project(&args.arg_name.unwrap(), 
-                                            args.arg_amount.unwrap())
-            .unwrap();
-        
+        let name     = args.arg_name.unwrap();
+        let amount   = args.arg_amount.unwrap();
+        let project  = try_return!(client.create_project(&name, amount));
+
     } else if args.cmd_back {
-        let project = client.back_project(&args.arg_user.unwrap(), &args.arg_name.unwrap(), 
-                                          &args.arg_card.unwrap(), args.arg_amount.unwrap())
-            .unwrap();
+        let user     = args.arg_user.unwrap();
+        let name     = args.arg_name.unwrap();
+        let card     = args.arg_card.unwrap();
+        let amount   = args.arg_amount.unwrap();
+        let project  = try_return!(client.back_project(&user, &name, &card, amount));
 
     } else if args.cmd_list {
-        let backers = client.list_backers(&args.arg_name.unwrap()).unwrap();
+        let name     = args.arg_name.unwrap();
+        let backers  = try_return!(client.list_backers(&name));
 
     } else if args.cmd_backer {
-        let projects = client.list_backed_projects(&args.arg_user.unwrap()).unwrap();
+        let user     = args.arg_user.unwrap();
+        let projects = try_return!(client.list_backed_projects(&user));
     }
 }

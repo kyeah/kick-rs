@@ -3,23 +3,29 @@ use std::io::Read;
 use toml;
 
 use codegenta::generator::{self, Config};
+use rustorm::database::Database;
 use rustorm::pool::{ManagedPool, Platform};
 
-use ::Result;
-use ::models::project::{self, Project};
+use ::{Error, Result};
+use ::models::{Pledge, Project};
 use ::models::user::{self, User};
+
+const ERR_PARSING_CONFIG: &'static str = "Failed to parse configuration file";
+const ERR_MISSING_URI: &'static str = "Configuration has no database connection string 'uri'";
 
 pub struct Client {
     uri: String,
+    schema: String,
     db: Platform,
 }
 
 impl Client {
-    pub fn new(uri: &str) -> Result<Client> {
+    pub fn new(uri: &str, schema: &str) -> Result<Client> {
         let pool = try!(ManagedPool::init(uri, 1));
         let db = try!(pool.connect());
         Ok(Client {
             uri: uri.to_string(),
+            schema: schema.to_string(),
             db: db,
         })
     }
@@ -34,20 +40,34 @@ impl Client {
         let mut parser = toml::Parser::new(&mut toml);
         let config = match parser.parse() {
             Some(config) => config,
-            None => panic!("Failed to parse configuration: {:?}", parser.errors),
+            None => return Err(Error::Config(format!("{}: {:?}", ERR_PARSING_CONFIG, parser.errors))),
+        };
+
+        let schema = match config.get("schema") {
+            Some(ref s) => s.as_str().unwrap(),
+            None => "kickstarter",
         };
 
         // Retrieve and open database connection uri        
         match config.get("uri") {
-            Some(ref uri) => Client::new(uri.as_str().unwrap()),
-            None => panic!("missing uri"),//return Error::ConfigError(ERR_MISSING_URI),
+            Some(ref uri) => Client::new(uri.as_str().unwrap(), schema),
+            None => return Err(Error::Config(ERR_MISSING_URI.to_string())),
         }
+    }
+
+    pub fn db(&self) -> &Database {
+        self.db.as_ref()
+    }
+    
+    // Return the full table namespace
+    pub fn table(&self, table: &str) -> String {
+        format!("{}.{}", self.schema, table)
     }
 
     /// Sync generated models in src/lib/gen with database tables.
     pub fn sync(&self) {
         let config = Config {
-            base_module: Some("gen".to_string()),
+            base_module: Some("db".to_string()),
             include_table_references: true,
             use_condensed_name: true,
             generate_table_meta: true,
@@ -58,14 +78,16 @@ impl Client {
         generator::generate_all(self.db.as_dev(), &config);
     }
 
-    pub fn create_project(&self, project_name: &str, amount: f64) -> Result<Project> {
-        //let project = try!(Project::new(project_name, amount));
-        // save project and return
-        unimplemented!()
+    pub fn create_project(&self, project_name: &str, amount: f64) -> Result<usize> {
+        let num_affected = try!(Project::create(&self, project_name, amount));
+        println!("Added project '{}' with a target goal of ${:.2}", project_name, amount);
+        Ok(num_affected)
     }
     
     pub fn back_project(&self, user: &str, project_name: &str, card: &str, amount: f64) -> Result<()> {
-        unimplemented!()
+        let _ = try!(Pledge::create(&self, user, project_name, card, amount));
+        println!("Backed project '{}' with a target goal of ${:.2}", project_name, amount);
+        Ok(())
     }
 
     pub fn list_backers(&self, project_name: &str) -> Result<Vec<User>> {

@@ -6,7 +6,9 @@ CREATE SCHEMA IF NOT EXISTS kickstarter;
 -- CREATE DOMAIN alnum AS text CHECK (value ~ '^[a-zA-Z0-9_-]+$');
 -- CREATE DOMAIN numtext AS text CHECK (value ~ '^[0-9]+$');
 
-CREATE TABLE IF NOT EXISTS kickstarter.users (
+-- TODO: Add numeric(30,2), decimal(30,2) or money type support to rust-postgres to replace DOUBLE.
+
+CREATE TABLE IF NOT EXISTS kickstarter.user (
     user_id SERIAL NOT NULL,
     name text NOT NULL,
     date_created timestamp DEFAULT localtimestamp NOT NULL,
@@ -16,10 +18,10 @@ CREATE TABLE IF NOT EXISTS kickstarter.users (
     CONSTRAINT user_name_length_chk CHECK (char_length(name) >= 4 AND char_length(name) <= 20)
 );
 
-CREATE TABLE IF NOT EXISTS kickstarter.projects (
+CREATE TABLE IF NOT EXISTS kickstarter.project (
     project_id SERIAL NOT NULL,
     name text NOT NULL,
-    goal numeric(30,2) NOT NULL,
+    goal double precision NOT NULL,
     date_created timestamp DEFAULT localtimestamp NOT NULL,
     PRIMARY KEY (project_id),
     CONSTRAINT project_name_uniq UNIQUE (name),
@@ -27,21 +29,40 @@ CREATE TABLE IF NOT EXISTS kickstarter.projects (
     CONSTRAINT project_name_length_chk CHECK (char_length(name) >= 4 AND char_length(name) <= 20)
 );
 
-CREATE TABLE IF NOT EXISTS kickstarter.pledges (
+CREATE TABLE IF NOT EXISTS kickstarter.pledge (
     user_id integer NOT NULL,
     project_id integer NOT NULL,
-    amount numeric(30,2) NOT NULL,
+    amount double precision NOT NULL,
     card text NOT NULL,
     date_created timestamp DEFAULT localtimestamp NOT NULL,
     PRIMARY KEY (user_id, project_id),
     CONSTRAINT pledge_card_numtext_chk CHECK (card ~ '^[0-9]+$'),
     CONSTRAINT pledge_card_length_chk CHECK (char_length(card) <= 19),
     CONSTRAINT pledge_project_card UNIQUE (project_id, card),
-    CONSTRAINT pledge_user_fkey FOREIGN KEY ("user_id") REFERENCES kickstarter.users ("user_id") ON DELETE CASCADE,
-    CONSTRAINT pledge_project_fkey FOREIGN KEY ("project_id") REFERENCES kickstarter.projects ("project_id") ON DELETE CASCADE
+    CONSTRAINT pledge_user_fkey FOREIGN KEY ("user_id") REFERENCES kickstarter.user ("user_id") ON DELETE CASCADE,
+    CONSTRAINT pledge_project_fkey FOREIGN KEY ("project_id") REFERENCES kickstarter.project ("project_id") ON DELETE CASCADE
 );
 
-CREATE INDEX ON kickstarter.users (name);
-CREATE INDEX ON kickstarter.projects (name);
-CREATE INDEX ON kickstarter.pledges (user_id);
-CREATE INDEX ON kickstarter.pledges (project_id);
+CREATE INDEX ON kickstarter.user (name);
+CREATE INDEX ON kickstarter.project (name);
+CREATE INDEX ON kickstarter.pledge (user_id);
+CREATE INDEX ON kickstarter.pledge (project_id);
+
+CREATE OR REPLACE FUNCTION upsert_user(_name text) RETURNS integer AS $$
+DECLARE
+    return_id integer;
+BEGIN
+    with s as (SELECT user_id FROM kickstarter.user WHERE name = _name),
+         i as (INSERT INTO kickstarter.user (name)
+               SELECT _name
+               WHERE NOT EXISTS (SELECT 1 FROM s)
+               RETURNING user_id)
+
+    SELECT user_id FROM i
+    UNION ALL 
+    SELECT user_id FROM s
+    INTO return_id;
+
+    return return_id;
+END;
+$$ LANGUAGE plpgsql;

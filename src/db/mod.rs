@@ -6,9 +6,9 @@ pub mod column;
 
 use rustorm::table::Table;
 use rustorm::table::IsTable;
-use gen::kickstarter::Pledge;
-use gen::kickstarter::Project;
-use gen::kickstarter::User;
+use db::kickstarter::Pledge;
+use db::kickstarter::Project;
+use db::kickstarter::User;
 
 
 pub fn get_all_tables()->Vec<Table>{

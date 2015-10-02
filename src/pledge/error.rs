@@ -10,6 +10,8 @@ pub enum Error {
     CardLength,
     CardNotLuhn10,
     CardExists,
+    InvalidAmount,
+    ProjectDoesNotExist,
 }
 
 impl fmt::Display for Error {
@@ -27,6 +29,8 @@ impl ErrorTrait for Error {
             Error::CardLength => "Credit card numbers should be between 0 and 19 characters.",
             Error::CardNotLuhn10 => "Credit card number failed the validation test.",
             Error::CardExists => "Credit card number has already been used to back this project.",
+            Error::InvalidAmount => "Pledged amount must be greater than 0 dollars.",
+            Error::ProjectDoesNotExist => "The project you are trying to back does not exist :(",
         }
     }
 

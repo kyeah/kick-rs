@@ -1,12 +1,12 @@
 //! WARNING: This file is generated, derived from table kickstarter.user, DO NOT EDIT
 
 use chrono::naive::datetime::NaiveDateTime;
-use gen::kickstarter::Pledge;
+use db::kickstarter::Pledge;
 use rustorm::dao::Dao;
 use rustorm::dao::IsDao;
-use gen::schema;
-use gen::table;
-use gen::column;
+use db::schema;
+use db::table;
+use db::column;
 use rustorm::table::IsTable;
 use rustorm::table::Column;
 use rustorm::table::Table;
