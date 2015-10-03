@@ -101,9 +101,9 @@ impl Client {
         }
 
         if failed {
-            println!(ERR_FAILED_BUILD);
+            println!("{}", ERR_FAILED_BUILD);
         } else {
-            println!(SUCCESS_BUILD);
+            println!("{}", SUCCESS_BUILD);
             self.sync();
         }
 
@@ -138,7 +138,7 @@ impl Client {
         };
 
         generator::generate_all(self.db.as_dev(), &config);
-        println!(SUCCESS_GENERATION);
+        println!("{}", SUCCESS_GENERATION);
     }
 
     /// Creates a new Kickstarter project with the specified name and goal amount in US dollars.

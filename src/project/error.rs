@@ -2,11 +2,16 @@ use ::Result;
 use std::error::Error as ErrorTrait;
 use std::fmt;
 
+/// The error type for project operations.
 #[derive(Debug)]
 pub enum Error {
+    /// The project name must be alphanumeric and contain only underscores or dashes.
     NameNotAlphaNumeric,
+    /// The project name was not between 4 and 20 characters.
     NameLength,
+    /// The goal amount was not more than zero dollars.
     InvalidAmount,
+    /// The project being searched for does not exist.
     ProjectDoesNotExist,
 }
 

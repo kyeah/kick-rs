@@ -2,14 +2,22 @@ use ::Result;
 use std::error::Error as ErrorTrait;
 use std::fmt;
 
+/// The error type for pledge operations.
 #[derive(Debug)]
 pub enum Error {
+    /// The user name should be alphanumeric and contain only underscores or dashes.
     NameNotAlphaNumeric,
+    /// The user name was not between 4 and 20 characters.
     NameLength,
+    /// The credit card provided was not numeric.
     CardNotNumeric,
+    /// The credit card was longer than 19 characters.
     CardLength,
+    /// The credit card did not pass the Luhn-10 test.
     CardNotLuhn10,
+    /// The credit card has already been used to back the desired project.
     CardExists,
+    /// The pledged amount was not more than zero dollars.
     InvalidAmount,
 }
 
@@ -22,9 +30,9 @@ impl fmt::Display for Error {
 impl ErrorTrait for Error {
     fn description(&self) -> &str {
         match *self {
-            Error::NameNotAlphaNumeric => "Project name should be alphanumeric \
+            Error::NameNotAlphaNumeric => "User name should be alphanumeric \
                                            and contain only underscores or dashes.",
-            Error::NameLength => "Project name should be between 4 and 20 characters.",
+            Error::NameLength => "User name should be between 4 and 20 characters.",
             Error::CardNotNumeric => "Credit card numbers must be numeric.",
             Error::CardLength => "Credit card numbers should be between 0 and 19 characters.",
             Error::CardNotLuhn10 => "Credit card number failed the validation test.",

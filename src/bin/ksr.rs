@@ -6,7 +6,7 @@ use docopt::Docopt;
 use kickstarter::{Client, Result, Error};
 use std::io::{self, Write};
 
-const DEFAULT_CONFIG = "data/config.toml";
+const DEFAULT_CONFIG: &'static str = "data/config.toml";
 
 const USAGE: &'static str = "
 The Real Kickstarter.
