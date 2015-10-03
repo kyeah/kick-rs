@@ -1,5 +1,6 @@
-use ::{Error, Result};
+use ::{pledge, Error, Result};
 use regex::Regex;
+use std::convert::From;
 
 lazy_static! {
     static ref ALPHANUM: Regex = Regex::new(r"^[a-zA-Z0-9_-]+$").unwrap();
@@ -39,5 +40,37 @@ pub fn length(s: &str, min: i32, max: i32, error: Error) -> Result<()> {
         Ok(())
     } else {
         Err(error)
+    }
+}
+
+pub fn luhn10(s: &str) -> Result<()> {
+
+    // Split into reverse digit iterator
+    let mut digits = s.rsplit("").filter_map(|ch| { 
+        if ch.is_empty() {
+            None
+        } else {
+            Some(ch.parse::<i8>().unwrap())
+        }
+    });
+
+    let mut alt = false;
+    let mut sum = 0;
+
+    // Good ol' Luhn test
+    for digit in &mut digits {
+        let mut luhn = digit;
+        if alt {
+            luhn *= 2;
+            if luhn > 10 { luhn -= 9; }
+        }
+        sum += luhn;
+        alt = !alt;
+    }
+
+    if sum % 10 == 0 {
+        Ok(())
+    } else {
+        Err(From::from(pledge::Error::CardNotLuhn10))
     }
 }

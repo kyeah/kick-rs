@@ -8,7 +8,6 @@ description = "The real Kickstarter application."
 [dependencies]
 chrono = "0.2"
 docopt = "0.6"
-docopt_macros = "0.6"
 lazy_static = "0.1"
 postgres = "0.10"
 regex = "0.1"

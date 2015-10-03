@@ -81,7 +81,7 @@ impl Pledge {
         try!(validate::alphanumeric(project_name, From::from(::project::Error::NameNotAlphaNumeric)));
         try!(validate::alphanumeric(user, From::from(Error::NameNotAlphaNumeric)));
         try!(validate::numtext(card, From::from(Error::CardNotNumeric)));
-        //try!(validate::luhn10(card));
+        try!(validate::luhn10(card));
         Ok(())
     }
 
