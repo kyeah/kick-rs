@@ -11,8 +11,9 @@ The Real Kickstarter.
 Usage:
     ksr project <name> <amount>
     ksr back    <user> <name> <card> <amount>
-    ksr list    <name>
+    ksr list    <name>        
     ksr backer  <user>
+    ksr listall
     ksr (-h | --help)
     ksr (-s | --sync)
     ksr (-v | --version)
@@ -66,6 +67,7 @@ struct Args {
     cmd_back: bool,
     cmd_list: bool,
     cmd_backer: bool,
+    cmd_listall: bool,
     arg_user: Option<String>,
     arg_name: Option<String>,
     arg_card: Option<String>,
@@ -86,6 +88,7 @@ fn main() {
 
     let client = Client::with_config("data/config.toml").unwrap();
 
+    // Wipe the database the sync it with the configuration file, then generate the associated models.
     if args.flag_sync {
         client.sync();
     }
@@ -93,7 +96,7 @@ fn main() {
     if args.cmd_project {
         let name    = args.arg_name.unwrap();
         let amount  = args.arg_amount.unwrap();
-        let project = try_return!(client.create_project(&name, amount));
+        try_return!(client.create_project(&name, amount));
         println!("Added project '{}' with a target goal of ${:.2}.", name, amount);
 
     } else if args.cmd_back {
@@ -101,12 +104,28 @@ fn main() {
         let name    = args.arg_name.unwrap();
         let card    = args.arg_card.unwrap();
         let amount  = args.arg_amount.unwrap();
-        let project = try_return!(client.back_project(&user, &name, &card, amount));
+        try_return!(client.back_project(&user, &name, &card, amount));
         println!("{} backed project '{}' for ${:.2}.", user, name, amount);
 
     } else if args.cmd_list {
         let name    = args.arg_name.unwrap();
-        let backers = try_return!(client.list_backers(&name));
+        let (results, goal) = try_return!(client.list_backers(&name));
+
+        if results.is_empty() {
+            println!("{} doesn't have any backers yet. Maybe you'd like to help it get off the ground?", name);
+        } else {
+            let mut total = 0f64;
+            for (user, &amount) in &results {
+                println!("-- {} backed for ${:.2}", user.name, amount);
+                total += amount;
+            }
+
+            if total < goal {
+                println!("{} needs ${:.2} more dollars to be successful!", name, goal - total);
+            } else {
+                println!("{} is successfully funded!", name);
+            }
+        }
 
     } else if args.cmd_backer {
         let user    = args.arg_user.unwrap();
@@ -123,5 +142,14 @@ fn main() {
             println!("{} has given ${:.2} back to their community. Thanks {}!", user, total, user);
         }
 
+    } else if args.cmd_listall {
+        let projects = try_return!(client.list_projects());
+        if projects.is_empty() {
+            println!("There aren't any projects on Kickstarter right now. Check again in a little while!");
+        } else {
+            for project in projects {
+                println!("Project '{}' is raising ${:.2}", project.name, project.goal);
+            }
+        }
     }
 }

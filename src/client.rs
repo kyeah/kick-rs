@@ -94,8 +94,12 @@ impl Client {
         Ok(())
     }
 
-    pub fn list_backers(&self, project_name: &str) -> Result<Vec<User>> {
-        unimplemented!()
+    pub fn list_backers(&self, project_name: &str) -> Result<(BTreeMap<User, f64>, f64)> {
+        Project::list_backers(&self, project_name)
+    }
+
+    pub fn list_projects(&self) -> Result<Vec<Project>> {
+        Project::list_all(&self)
     }
 
     pub fn list_backed_projects(&self, user: &str) -> Result<BTreeMap<String, Pledge>> {
