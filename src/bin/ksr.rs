@@ -24,7 +24,7 @@ Options:
     -h --help      Show this message
     -v --version   Show version
     -s --sync      Sync generated models with db tables
-    --build        Build tables from .sql file and sync generated models
+    -b --build     Build tables and models from configured .sql file
 
 Commands:
     project    Create a new project
