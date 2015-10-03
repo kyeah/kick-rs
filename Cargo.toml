@@ -2,7 +2,7 @@
 name = "kickstarter"
 version = "0.1.0"
 authors = ["Kevin Yeh <kevinyeah@utexas.edu>"]
-repository = "https://github.com/kyeah/kickstarter"
+repository = "https://github.com/kyeah/kick-rs"
 description = "The real Kickstarter application."
 
 [dependencies]

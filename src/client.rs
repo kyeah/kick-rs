@@ -42,7 +42,7 @@ impl Client {
     /// Creates a new Kickstarter client using the provided .toml configuration filename.
     /// If bootstrap is true, the client will wipe and recreate the database
     /// using the sql_file specified in the configuration.
-    pub fn with_config(filename: &str, bootstrap: bool) -> Result<Client> {
+    pub fn with_config(filename: &str, bootstrap: bool, sync: bool) -> Result<Client> {
 
         // Open config file
         let mut toml = try!(Client::read_file_as_string(filename));
@@ -73,7 +73,7 @@ impl Client {
             };
 
             let cmds = try!(Client::read_file_as_string(sql_file));
-            try!(client.bootstrap(&cmds, schema));
+            try!(client.bootstrap(&cmds, schema, sync));
         }
 
         Ok(client)
@@ -88,8 +88,8 @@ impl Client {
     }
 
     /// Rebuilds the database schema and models.
-    fn bootstrap(&self, cmds: &str, schema: &str) -> Result<()> {
-        try!(self.db().execute_sql(&format!("DROP SCHEMA {} CASCADE", schema), &vec![]));
+    fn bootstrap(&self, cmds: &str, schema: &str, sync: bool) -> Result<()> {
+        try!(self.db().execute_sql(&format!("DROP SCHEMA IF EXISTS {} CASCADE", schema), &vec![]));
 
         let mut failed = false;
         for cmd in cmds.split("\n\n") {
@@ -104,7 +104,9 @@ impl Client {
             println!("{}", ERR_FAILED_BUILD);
         } else {
             println!("{}", SUCCESS_BUILD);
-            self.sync();
+            if sync {
+                self.sync();
+            }
         }
 
         Ok(())

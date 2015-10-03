@@ -101,7 +101,7 @@ fn main() {
     }
 
     // Connect to the database.
-    let client = Client::with_config(DEFAULT_CONFIG, args.flag_build).unwrap();
+    let client = Client::with_config(DEFAULT_CONFIG, args.flag_build, true).unwrap();
 
     // Wipe the database the sync it with the configuration file, then generate the associated models.
     if args.flag_sync {

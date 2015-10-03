@@ -9,13 +9,13 @@ extern crate rustc_serialize;
 extern crate rustorm;
 extern crate toml;
 
+pub mod db;
 pub mod pledge;
 pub mod project;
 pub mod user;
 
 mod client;
 mod error;
-mod db;
 mod validate;
 
 pub use db::kickstarter as models;

@@ -2,3 +2,4 @@ target
 *~
 *#
 data/config.toml
+tests/data/config.toml

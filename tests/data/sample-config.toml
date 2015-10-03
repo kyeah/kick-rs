@@ -1,0 +1,5 @@
+# Application configuration file
+# ===============================
+
+uri = "postgres://user:pass@localhost:5432/ksr-test"
+sql_config = "data/tables.sql"

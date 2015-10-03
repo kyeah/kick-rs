@@ -91,3 +91,7 @@ Then, configure the application to connect to your database by renaming `data/sa
 The default IP and port is localhost:5432.
 
 You can build or rebuild the schema at any time by running `ksr --build`. This will bootstrap the database and regenerate the models in [src/db](src/db). Pretty cool!
+
+### Testing
+
+The tests rely on a `config.toml` maintained in [tests/data](tests/data). Make sure that the provided database exists before running `cargo test`.
