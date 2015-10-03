@@ -1,5 +1,8 @@
 CREATE SCHEMA IF NOT EXISTS kickstarter;
 
+-- Use line breaks to delineate between SQL commands; this allows the ksr program
+-- to read each command and run them when the --build flag is passed in.
+
 -- Only use these domains when the ORM model generator supports domain interpretation.
 -- Otherwise, use _alnum and _numtext check constraints.
 
@@ -51,17 +54,19 @@ CREATE OR REPLACE FUNCTION upsert_user(_name text) RETURNS integer AS $$
 DECLARE
     return_id integer;
 BEGIN
+    -- Define selection and insertion procedures
     with s as (SELECT user_id FROM kickstarter.user WHERE name = _name),
          i as (INSERT INTO kickstarter.user (name)
                SELECT _name
                WHERE NOT EXISTS (SELECT 1 FROM s)
                RETURNING user_id)
-
+    -- Union-select from both the insertion and selection result, 
+    -- saving user_id as return_id.
     SELECT user_id FROM i
     UNION ALL 
     SELECT user_id FROM s
     INTO return_id;
-
+    -- Return id
     return return_id;
 END;
 $$ LANGUAGE plpgsql;

@@ -2,6 +2,7 @@ use ::{Error, Result};
 use ::models::{Pledge, Project, User};
 
 use codegenta::generator::{self, Config};
+
 use rustorm::database::Database;
 use rustorm::pool::{ManagedPool, Platform};
 
@@ -71,7 +72,24 @@ impl Client {
             let mut sql_f = try!(File::open(sql_file));
             let mut cmds = String::new();
             try!(sql_f.read_to_string(&mut cmds));
-            //client.bootstrap(&cmds);
+
+            try!(client.db().execute_sql(&format!("DROP SCHEMA {} CASCADE", schema), &vec![]));
+
+            let mut failed = false;
+            for cmd in cmds.split("\n\n") {
+                let result = client.db().execute_sql(cmd, &vec![]);
+                if let Err(ref err) = result {
+                    println!("{}", err);
+                    failed = true;
+                }
+            }
+
+            if failed {
+                println!("Failed to run one or more build commands; skipping model generation.");
+            } else {
+                println!("Successfully built the database! Running model generation...");
+                client.sync();
+            }
         }
 
         Ok(client)
@@ -105,6 +123,7 @@ impl Client {
         };
 
         generator::generate_all(self.db.as_dev(), &config);
+        println!("Generated models into the db module.");
     }
 
     /// Creates a new Kickstarter project with the specified name and goal amount in US dollars.
