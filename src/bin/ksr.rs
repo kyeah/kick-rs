@@ -15,19 +15,22 @@ Usage:
     ksr backer  <user>
     ksr listall
     ksr (-h | --help)
-    ksr (-s | --sync)
     ksr (-v | --version)
+    ksr (-b | --build)
+    ksr (-s | --sync)
 
 Options:
     -h --help      Show this message
     -v --version   Show version
     -s --sync      Sync generated models with db tables
+    --build        Build tables from .sql file and sync generated models
 
 Commands:
     project    Create a new project
     back       Back a project
     list       List all pledges towards a project
     backer     List all pledges that a backer has made
+    listall    List all existing projects
 
 Examples:
     project Sensel_Control_Pad 250000.00
@@ -54,6 +57,7 @@ macro_rules! version {
     }
 }
 
+/// try! macro, but print the error description and return void.
 macro_rules! try_return {
     ($expr:expr) => (match $expr {
         std::result::Result::Ok(val) => val,
@@ -74,6 +78,7 @@ struct Args {
     arg_amount: Option<f64>,
     flag_version: bool,
     flag_sync: bool,
+    flag_build: bool,
 }
 
 fn main() {
@@ -81,75 +86,103 @@ fn main() {
         .and_then(|d| d.decode())
         .unwrap_or_else(|e| e.exit());
 
+    // Print the library version.
     if args.flag_version {
         println!("{}", version!());
         return;
     }
 
-    let client = Client::with_config("data/config.toml").unwrap();
+    // Connect to the database.
+    let client = Client::with_config("data/config.toml", args.flag_build).unwrap();
 
     // Wipe the database the sync it with the configuration file, then generate the associated models.
     if args.flag_sync {
         client.sync();
     }
 
+    // Execute desired commands.
     if args.cmd_project {
-        let name    = args.arg_name.unwrap();
-        let amount  = args.arg_amount.unwrap();
-        try_return!(client.create_project(&name, amount));
-        println!("Added project '{}' with a target goal of ${:.2}.", name, amount);
-
+        cmd_project(&client, args);
+            
     } else if args.cmd_back {
-        let user    = args.arg_user.unwrap();
-        let name    = args.arg_name.unwrap();
-        let card    = args.arg_card.unwrap();
-        let amount  = args.arg_amount.unwrap();
-        try_return!(client.back_project(&user, &name, &card, amount));
-        println!("{} backed project '{}' for ${:.2}.", user, name, amount);
-
+        cmd_back(&client, args);
+            
     } else if args.cmd_list {
-        let name    = args.arg_name.unwrap();
-        let (results, goal) = try_return!(client.list_backers(&name));
-
-        if results.is_empty() {
-            println!("{} doesn't have any backers yet. Maybe you'd like to help it get off the ground?", name);
-        } else {
-            let mut total = 0f64;
-            for (user, &amount) in &results {
-                println!("-- {} backed for ${:.2}", user.name, amount);
-                total += amount;
-            }
-
-            if total < goal {
-                println!("{} needs ${:.2} more dollars to be successful!", name, goal - total);
-            } else {
-                println!("{} is successfully funded!", name);
-            }
-        }
-
+        cmd_list(&client, args);
+            
     } else if args.cmd_backer {
-        let user    = args.arg_user.unwrap();
-        let results = try_return!(client.list_backed_projects(&user));
-
-        if results.is_empty() {
-            println!("{} hasn't backed any projects...yet. Get to it!", user);
-        } else {
-            let mut total = 0f64;
-            for (project, pledge) in &results {
-                println!("{} backed project {} for ${:.2}", user, project, pledge.amount);
-                total += pledge.amount;
-            }
-            println!("{} has given ${:.2} back to their community. Thanks {}!", user, total, user);
-        }
-
+        cmd_backer(&client, args);
+            
     } else if args.cmd_listall {
-        let projects = try_return!(client.list_projects());
-        if projects.is_empty() {
-            println!("There aren't any projects on Kickstarter right now. Check again in a little while!");
+        cmd_listall(&client);
+    }
+}
+
+/// Create a new project with the desired amount.
+fn cmd_project(client: &Client, args: Args) {
+    let name    = args.arg_name.unwrap();
+    let amount  = args.arg_amount.unwrap();
+    try_return!(client.create_project(&name, amount));
+    println!("Added project '{}' with a target goal of ${:.2}.", name, amount);
+}
+
+/// Back an existing project with a username, credit card, and contribution amount.
+fn cmd_back(client: &Client, args: Args) {
+    let user    = args.arg_user.unwrap();
+    let name    = args.arg_name.unwrap();
+    let card    = args.arg_card.unwrap();
+    let amount  = args.arg_amount.unwrap();
+    try_return!(client.back_project(&user, &name, &card, amount));
+    println!("{} backed project '{}' for ${:.2}.", user, name, amount);
+}
+
+/// List all backers for an existing project.
+fn cmd_list(client: &Client, args: Args) {
+    let name    = args.arg_name.unwrap();
+    let (results, goal) = try_return!(client.list_backers(&name));
+    
+    if results.is_empty() {
+        println!("{} doesn't have any backers yet. Maybe you'd like to help it get off the ground?", name);
+    } else {
+        let mut total = 0f64;
+        for (user, &amount) in &results {
+            println!("-- {} backed for ${:.2}", user.name, amount);
+            total += amount;
+        }
+        
+        if total < goal {
+            println!("{} needs ${:.2} more dollars to be successful!", name, goal - total);
         } else {
-            for project in projects {
-                println!("Project '{}' is raising ${:.2}", project.name, project.goal);
-            }
+            println!("{} is successfully funded!", name);
+        }
+    }
+}
+
+/// List all projects that have been backed by a user.
+fn cmd_backer(client: &Client, args: Args) {
+    let user    = args.arg_user.unwrap();
+    let results = try_return!(client.list_backed_projects(&user));
+    
+    if results.is_empty() {
+        println!("{} hasn't backed any projects...yet. Get to it!", user);
+    } else {
+        let mut total = 0f64;
+        for (project, pledge) in &results {
+            println!("{} backed project {} for ${:.2}", user, project, pledge.amount);
+            total += pledge.amount;
+        }
+        println!("{} has given ${:.2} back to their community. Thanks {}!", user, total, user);
+    }
+}
+
+/// List all projects on Kickstarter.
+fn cmd_listall(client: &Client) {
+    let projects = try_return!(client.list_projects());
+    if projects.is_empty() {
+        println!("There aren't any projects on Kickstarter right now. Check again in a little while!");
+    } else {
+        for project in projects {
+            println!("Project '{}' is raising ${:.2}", project.name, project.goal);
         }
     }
 }

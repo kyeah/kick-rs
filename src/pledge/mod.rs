@@ -16,6 +16,8 @@ use std::collections::BTreeMap;
 use std::error::Error as ErrorTrait;
 
 impl Pledge {
+
+    /// Creates a new pledge for an existing project.
     pub fn create(client: &Client, user: &str, project_name: &str, card: &str, amount: f64) -> Result<usize> {
 
         try!(Pledge::validate_args(user, project_name, card));
@@ -70,7 +72,6 @@ impl Pledge {
         }
     }
 
-
     /// Project names must be alphanumeric and between 4 and 20 characters.
     /// User names must be alphanumeric and between 4 and 20 characters.
     /// Credit card numbers must be under 20 characters and pass the numeric & Luhn-10 tests.
@@ -85,6 +86,8 @@ impl Pledge {
         Ok(())
     }
 
+    /// Retrieve a map of all pledges that a user has made to Kickstarter projects.
+    /// Returns a map of project names to Pledge objects.
     pub fn list_for_user(client: &Client, user: &str) -> Result<BTreeMap<String, Pledge>> {
 
         // Get all pledges, along with the project name.

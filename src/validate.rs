@@ -7,6 +7,7 @@ lazy_static! {
     static ref NUMTEXT: Regex = Regex::new(r"^[0-9]+$").unwrap();
 }
 
+/// Validates that the float is positive, and rounds it to two decimal places.
 pub fn currency(f: f64, error: Error) -> Result<f64> {
     if f <= 0.0 {
         return Err(error)
@@ -18,14 +19,17 @@ pub fn currency(f: f64, error: Error) -> Result<f64> {
     Ok(precise_round.unwrap())
 }
 
+/// Validates that the string is alphanumeric and contains only underscores and dahes as special characters.
 pub fn alphanumeric(s: &str, error: Error) -> Result<()> {
     regex(&ALPHANUM, s, error)
 }
 
+/// Validates that the string contains only digits.
 pub fn numtext(s: &str, error: Error) -> Result<()> {
     regex(&NUMTEXT, s, error)
 }
 
+/// Validates that the string matches the provided regex.
 pub fn regex(reg: &Regex, s: &str, error: Error) -> Result<()> {
     if reg.is_match(s) {
         Ok(())
@@ -34,6 +38,7 @@ pub fn regex(reg: &Regex, s: &str, error: Error) -> Result<()> {
     }
 }
 
+/// Validates that the string length is between min and max, inclusive.
 pub fn length(s: &str, min: i32, max: i32, error: Error) -> Result<()> {
     let len = s.len();
     if min as usize <= len && len <= max as usize {
@@ -43,6 +48,7 @@ pub fn length(s: &str, min: i32, max: i32, error: Error) -> Result<()> {
     }
 }
 
+/// Validates that a numerical string passes the Luhn-10 test.
 pub fn luhn10(s: &str) -> Result<()> {
 
     // Split into reverse digit iterator

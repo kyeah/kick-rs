@@ -6,9 +6,8 @@ use rustorm::query::Query;
 use std::cmp::Ordering;
 
 impl User {
-    /// Upsert user and retrieve the resultant ID.
+    /// Upserts a user and returns the resultant ID as a Value.
     pub fn upsert(client: &Client, user: &str) -> Result<Value> {
-        // Upsert user and retrieve ID
         let u_result = try!(Query::select()
                             .column("upsert_user")
                             .from_table(&format!("upsert_user('{}')", user))

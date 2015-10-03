@@ -16,6 +16,9 @@ use std::collections::BTreeMap;
 use std::convert::From;
 
 impl Project {
+
+    /// Creates a new Kickstarter project with the provided goal amount in dollars.
+    /// Returns the number of rows affected in the project table, equal to 1 on success.
     pub fn create(client: &Client, project_name: &str, amount: f64) -> Result<usize> {
 
         // Names must be alphanumeric and between 4 & 20 characters.
@@ -71,6 +74,7 @@ impl Project {
         }
     }
 
+    /// Returns a list of all projects on Kickstarter.
     pub fn list_all(client: &Client) -> Result<Vec<Project>> {
         let results: Vec<Project> = try!(Query::select_all()
             .from_table(&client.table(table::project))
@@ -79,6 +83,9 @@ impl Project {
         Ok(results)
     }
 
+    /// Retrieves a list of all users that have backed a given project.
+    /// Returns a map of User objects to their contributions,
+    /// as well as the overall project goal amount.
     pub fn list_backers(client: &Client, project_name: &str) -> Result<(BTreeMap<User, f64>, f64)> {
         let dao_results = try!(Query::select()
             .column(&"us.*")
