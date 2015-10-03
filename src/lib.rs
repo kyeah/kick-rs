@@ -13,10 +13,10 @@ pub mod db;
 pub mod pledge;
 pub mod project;
 pub mod user;
+pub mod validate;
 
 mod client;
 mod error;
-mod validate;
 
 pub use db::kickstarter as models;
 pub use client::Client;

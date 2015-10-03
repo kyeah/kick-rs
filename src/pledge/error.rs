@@ -3,7 +3,7 @@ use std::error::Error as ErrorTrait;
 use std::fmt;
 
 /// The error type for pledge operations.
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Error {
     /// The user name should be alphanumeric and contain only underscores or dashes.
     NameNotAlphaNumeric,

@@ -50,6 +50,7 @@ pub fn length(s: &str, min: i32, max: i32, error: Error) -> Result<()> {
 
 /// Validates that a numerical string passes the Luhn-10 test.
 pub fn luhn10(s: &str) -> Result<()> {
+    try!(numtext(s, From::from(pledge::Error::CardNotLuhn10)));
 
     // Split into reverse digit iterator
     let mut digits = s.rsplit("").filter_map(|ch| { 
@@ -68,13 +69,13 @@ pub fn luhn10(s: &str) -> Result<()> {
         let mut luhn = digit;
         if alt {
             luhn *= 2;
-            if luhn > 10 { luhn -= 9; }
+            if luhn > 9 { luhn -= 9; }
         }
         sum += luhn;
         alt = !alt;
     }
 
-    if sum % 10 == 0 {
+    if sum % 10 == 0 && !s.is_empty() {
         Ok(())
     } else {
         Err(From::from(pledge::Error::CardNotLuhn10))
