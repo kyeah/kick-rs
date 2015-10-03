@@ -3,7 +3,8 @@ extern crate rustc_serialize;
 extern crate kickstarter;
 
 use docopt::Docopt;
-use kickstarter::{Client, Error};
+use kickstarter::{Client, Result, Error};
+use std::io::{self, Write};
 
 const USAGE: &'static str = "
 The Real Kickstarter.
@@ -11,7 +12,7 @@ The Real Kickstarter.
 Usage:
     ksr project <name> <amount>
     ksr back    <user> <name> <card> <amount>
-    ksr list    <name>        
+    ksr list    <name>
     ksr backer  <user>
     ksr listall
     ksr (-h | --help)
@@ -92,6 +93,10 @@ fn main() {
         return;
     }
 
+    if args.flag_build {
+        try_return!(ensure_build());
+    }
+
     // Connect to the database.
     let client = Client::with_config("data/config.toml", args.flag_build).unwrap();
 
@@ -103,18 +108,36 @@ fn main() {
     // Execute desired commands.
     if args.cmd_project {
         cmd_project(&client, args);
-            
+
     } else if args.cmd_back {
         cmd_back(&client, args);
-            
+
     } else if args.cmd_list {
         cmd_list(&client, args);
-            
+
     } else if args.cmd_backer {
         cmd_backer(&client, args);
-            
+
     } else if args.cmd_listall {
         cmd_listall(&client);
+    }
+}
+
+fn ensure_build() -> Result<()> {
+    // Print prompt and flush to display
+    print!("WARNING: The --build flag will destroy and rebuild the database. \n\
+            Are you sure you want to continue? [Y/N]: ");
+
+    try!(io::stdout().flush());
+
+    // Read in user input
+    let mut ans = String::new();
+    try!(io::stdin().read_line(&mut ans));
+
+    if !ans.starts_with("y") && !ans.starts_with("Y") {
+        Err(Error::Config("Cancelled rebuild.".to_owned()))
+    } else {
+        Ok(())
     }
 }
 
@@ -140,7 +163,7 @@ fn cmd_back(client: &Client, args: Args) {
 fn cmd_list(client: &Client, args: Args) {
     let name    = args.arg_name.unwrap();
     let (results, goal) = try_return!(client.list_backers(&name));
-    
+
     if results.is_empty() {
         println!("{} doesn't have any backers yet. Maybe you'd like to help it get off the ground?", name);
     } else {
@@ -149,7 +172,7 @@ fn cmd_list(client: &Client, args: Args) {
             println!("-- {} backed for ${:.2}", user.name, amount);
             total += amount;
         }
-        
+
         if total < goal {
             println!("{} needs ${:.2} more dollars to be successful!", name, goal - total);
         } else {
@@ -162,7 +185,7 @@ fn cmd_list(client: &Client, args: Args) {
 fn cmd_backer(client: &Client, args: Args) {
     let user    = args.arg_user.unwrap();
     let results = try_return!(client.list_backed_projects(&user));
-    
+
     if results.is_empty() {
         println!("{} hasn't backed any projects...yet. Get to it!", user);
     } else {
