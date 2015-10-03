@@ -27,7 +27,7 @@ pub struct Project {
     /// not nullable 
     /// db data type: text
     pub name: String,
-    /// default: ('now'::text)::timestamp without time zone
+    /// default: now()
     /// not nullable 
     /// db data type: timestamp without time zone
     pub date_created: NaiveDateTime,
@@ -94,7 +94,7 @@ impl IsTable for Project{
                     name: column::name.to_string(),
                     data_type: "String".to_string(),
                     db_data_type: "text".to_string(),
-                    is_primary: false, is_unique: false, not_null: true, is_inherited: false, 
+                    is_primary: false, is_unique: true, not_null: true, is_inherited: false, 
                     default:None,
                     comment:None,
                     foreign: None,
@@ -113,7 +113,7 @@ impl IsTable for Project{
                     data_type: "NaiveDateTime".to_string(),
                     db_data_type: "timestamp without time zone".to_string(),
                     is_primary: false, is_unique: false, not_null: true, is_inherited: false, 
-                    default:Some("('now'::text)::timestamp without time zone".to_string()),
+                    default:Some("now()".to_string()),
                     comment:None,
                     foreign: None,
                 },
