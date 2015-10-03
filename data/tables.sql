@@ -8,6 +8,10 @@ CREATE SCHEMA IF NOT EXISTS kickstarter;
 
 -- TODO: Add numeric(30,2), decimal(30,2) or money type support to rust-postgres to replace DOUBLE.
 
+-- User:    indexes on user_id and name.
+-- Project: indexes on project_id and name.
+-- Pledge:  indexes on user_id, project_id, and card.
+
 CREATE TABLE IF NOT EXISTS kickstarter.user (
     user_id SERIAL NOT NULL,
     name text NOT NULL,
@@ -42,11 +46,6 @@ CREATE TABLE IF NOT EXISTS kickstarter.pledge (
     CONSTRAINT pledge_user_fkey FOREIGN KEY ("user_id") REFERENCES kickstarter.user ("user_id") ON DELETE CASCADE,
     CONSTRAINT pledge_project_fkey FOREIGN KEY ("project_id") REFERENCES kickstarter.project ("project_id") ON DELETE CASCADE
 );
-
-CREATE INDEX ON kickstarter.user (name);
-CREATE INDEX ON kickstarter.project (name);
-CREATE INDEX ON kickstarter.pledge (user_id);
-CREATE INDEX ON kickstarter.pledge (project_id);
 
 CREATE OR REPLACE FUNCTION upsert_user(_name text) RETURNS integer AS $$
 DECLARE

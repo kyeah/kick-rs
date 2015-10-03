@@ -1,13 +1,14 @@
-use std::fs::File;
-use std::io::Read;
-use toml;
+use ::{Error, Result};
+use ::models::{Pledge, Project, User};
 
 use codegenta::generator::{self, Config};
 use rustorm::database::Database;
 use rustorm::pool::{ManagedPool, Platform};
 
-use ::{Error, Result};
-use ::models::{Pledge, Project, User};
+use std::collections::BTreeMap;
+use std::fs::File;
+use std::io::Read;
+use toml;
 
 const ERR_PARSING_CONFIG: &'static str = "Failed to parse configuration file";
 const ERR_MISSING_URI: &'static str = "Configuration has no database connection string 'uri'";
@@ -63,6 +64,12 @@ impl Client {
         format!("{}.{}", self.schema, table)
     }
 
+    
+    // Return the full table namespace, abbreviated with the first two letters.
+    pub fn table_abbr(&self, table: &str) -> String {
+        format!("{}.{} {}", self.schema, table, &table[..2])
+    }
+
     /// Sync generated models in src/lib/gen with database tables.
     pub fn sync(&self) {
         let config = Config {
@@ -77,15 +84,13 @@ impl Client {
         generator::generate_all(self.db.as_dev(), &config);
     }
 
-    pub fn create_project(&self, project_name: &str, amount: f64) -> Result<usize> {
-        let num_affected = try!(Project::create(&self, project_name, amount));
-        println!("Added project '{}' with a target goal of ${:.2}", project_name, amount);
-        Ok(num_affected)
+    pub fn create_project(&self, project_name: &str, amount: f64) -> Result<()> {
+        let _ = try!(Project::create(&self, project_name, amount));
+        Ok(())
     }
     
     pub fn back_project(&self, user: &str, project_name: &str, card: &str, amount: f64) -> Result<()> {
         let _ = try!(Pledge::create(&self, user, project_name, card, amount));
-        println!("Backed project '{}' with a target goal of ${:.2}", project_name, amount);
         Ok(())
     }
 
@@ -93,7 +98,7 @@ impl Client {
         unimplemented!()
     }
 
-    pub fn list_backed_projects(&self, user: &str) -> Result<Vec<Project>> {
-        unimplemented!()
+    pub fn list_backed_projects(&self, user: &str) -> Result<BTreeMap<String, Pledge>> {
+        Pledge::list_for_user(&self, user)
     }
 }

@@ -91,23 +91,37 @@ fn main() {
     }
 
     if args.cmd_project {
-        let name     = args.arg_name.unwrap();
-        let amount   = args.arg_amount.unwrap();
-        let project  = try_return!(client.create_project(&name, amount));
+        let name    = args.arg_name.unwrap();
+        let amount  = args.arg_amount.unwrap();
+        let project = try_return!(client.create_project(&name, amount));
+        println!("Added project '{}' with a target goal of ${:.2}.", name, amount);
 
     } else if args.cmd_back {
-        let user     = args.arg_user.unwrap();
-        let name     = args.arg_name.unwrap();
-        let card     = args.arg_card.unwrap();
-        let amount   = args.arg_amount.unwrap();
-        let project  = try_return!(client.back_project(&user, &name, &card, amount));
+        let user    = args.arg_user.unwrap();
+        let name    = args.arg_name.unwrap();
+        let card    = args.arg_card.unwrap();
+        let amount  = args.arg_amount.unwrap();
+        let project = try_return!(client.back_project(&user, &name, &card, amount));
+        println!("{} backed project '{}' for ${:.2}.", user, name, amount);
 
     } else if args.cmd_list {
-        let name     = args.arg_name.unwrap();
-        let backers  = try_return!(client.list_backers(&name));
+        let name    = args.arg_name.unwrap();
+        let backers = try_return!(client.list_backers(&name));
 
     } else if args.cmd_backer {
-        let user     = args.arg_user.unwrap();
-        let projects = try_return!(client.list_backed_projects(&user));
+        let user    = args.arg_user.unwrap();
+        let results = try_return!(client.list_backed_projects(&user));
+
+        if results.is_empty() {
+            println!("{} hasn't backed any projects...yet. Get to it!", user);
+        } else {
+            let mut total = 0f64;
+            for (project, pledge) in &results {
+                println!("{} backed project {} for ${:.2}", user, project, pledge.amount);
+                total += pledge.amount;
+            }
+            println!("{} has given ${:.2} back to their community. Thanks {}!", user, total, user);
+        }
+
     }
 }

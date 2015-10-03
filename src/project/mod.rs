@@ -56,15 +56,17 @@ impl Project {
 
     /// Retrieve a project ID by name.
     pub fn get_id(client: &Client, project_name: &str) -> Result<Value> {
-        let p_result = try!(Query::select()
-                            .column(column::project_id)
-                            .from_table(&client.table(table::project))
-                            .filter(column::name, Equality::EQ, &project_name)
-                            .retrieve_one(client.db()));
+        let result = try!(Query::select()
+                          .column(column::project_id)
+                          .from_table(&client.table(table::project))
+                          .filter(column::name, Equality::EQ, &project_name)
+                          .retrieve(client.db()));
 
-        match p_result.values.get(column::project_id) {
-            Some(ref id) => Ok((*id).clone()),
-            None => Err(From::from(Error::ProjectDoesNotExist)),
+        if result.dao.is_empty() {
+            Err(From::from(Error::ProjectDoesNotExist))
+        } else {
+            let id = result.dao[0].values.get(column::project_id).unwrap();
+            Ok(id.clone())
         }
     }
 }
