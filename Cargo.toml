@@ -15,7 +15,9 @@ rustc-serialize = "0.3"
 toml = "0.1"
 
 [dependencies.rustorm]
-path="/home/kyeh/cs/git/rustorm"
+git="https://github.com/kyeah/rustorm"
+branch="bug-fixes"
 
 [dependencies.codegenta]
-path="/home/kyeh/cs/git/codegenta"
+git="https://github.com/kyeah/codegenta"
+branch="bug-fixes"

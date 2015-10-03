@@ -3,13 +3,13 @@ name = "kickstarter"
 version = "0.1.0"
 dependencies = [
  "chrono 0.2.16 (registry+https://github.com/rust-lang/crates.io-index)",
- "codegenta 0.0.2",
+ "codegenta 0.0.2 (git+https://github.com/kyeah/codegenta?branch=bug-fixes)",
  "docopt 0.6.73 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 0.1.15 (registry+https://github.com/rust-lang/crates.io-index)",
  "postgres 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "regex 0.1.41 (registry+https://github.com/rust-lang/crates.io-index)",
  "rustc-serialize 0.3.16 (registry+https://github.com/rust-lang/crates.io-index)",
- "rustorm 0.1.3",
+ "rustorm 0.1.3 (git+https://github.com/kyeah/rustorm?branch=bug-fixes)",
  "toml 0.1.22 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -58,10 +58,11 @@ dependencies = [
 [[package]]
 name = "codegenta"
 version = "0.0.2"
+source = "git+https://github.com/kyeah/codegenta?branch=bug-fixes#a1fa8edbd8bcb9e9793dcc70e3093f1dc2f6feaa"
 dependencies = [
  "chrono 0.2.16 (registry+https://github.com/rust-lang/crates.io-index)",
  "rustc-serialize 0.3.16 (registry+https://github.com/rust-lang/crates.io-index)",
- "rustorm 0.1.3",
+ "rustorm 0.1.3 (git+https://github.com/kyeah/rustorm?branch=bug-fixes)",
  "time 0.1.32 (registry+https://github.com/rust-lang/crates.io-index)",
  "uuid 0.1.17 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -305,6 +306,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "rustorm"
 version = "0.1.3"
+source = "git+https://github.com/kyeah/rustorm?branch=bug-fixes#d7d0bf536e72dc2a220dbb3184be51a2df95f6fd"
 dependencies = [
  "chrono 0.2.16 (registry+https://github.com/rust-lang/crates.io-index)",
  "env_logger 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
