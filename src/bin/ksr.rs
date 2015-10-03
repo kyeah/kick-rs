@@ -6,6 +6,8 @@ use docopt::Docopt;
 use kickstarter::{Client, Result, Error};
 use std::io::{self, Write};
 
+const DEFAULT_CONFIG = "data/config.toml";
+
 const USAGE: &'static str = "
 The Real Kickstarter.
 
@@ -93,12 +95,13 @@ fn main() {
         return;
     }
 
+    // Destructive flag -- double-check with the user.
     if args.flag_build {
         try_return!(ensure_build());
     }
 
     // Connect to the database.
-    let client = Client::with_config("data/config.toml", args.flag_build).unwrap();
+    let client = Client::with_config(DEFAULT_CONFIG, args.flag_build).unwrap();
 
     // Wipe the database the sync it with the configuration file, then generate the associated models.
     if args.flag_sync {
@@ -123,6 +126,7 @@ fn main() {
     }
 }
 
+/// Ensure that the user wishes to rebuild the database and models.
 fn ensure_build() -> Result<()> {
     // Print prompt and flush to display
     print!("WARNING: The --build flag will destroy and rebuild the database. \n\

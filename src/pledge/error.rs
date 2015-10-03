@@ -22,7 +22,8 @@ impl fmt::Display for Error {
 impl ErrorTrait for Error {
     fn description(&self) -> &str {
         match *self {
-            Error::NameNotAlphaNumeric => "Project name should be alphanumeric and contain only underscores or dashes.",
+            Error::NameNotAlphaNumeric => "Project name should be alphanumeric \
+                                           and contain only underscores or dashes.",
             Error::NameLength => "Project name should be between 4 and 20 characters.",
             Error::CardNotNumeric => "Credit card numbers must be numeric.",
             Error::CardLength => "Credit card numbers should be between 0 and 19 characters.",

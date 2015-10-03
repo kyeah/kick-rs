@@ -13,6 +13,12 @@ use toml;
 
 const ERR_PARSING_CONFIG: &'static str = "Failed to parse configuration file";
 const ERR_MISSING_URI: &'static str = "Configuration has no database connection string 'uri'";
+const ERR_FAILED_BUILD: &'static str = "Failed to run one or more build commands; skipping model generation.";
+const SUCCESS_BUILD: &'static str = "Successfully built the database! Running model generation...";
+const SUCCESS_GENERATION: &'static str = "Generated models into the db module.";
+
+const DEFAULT_SCHEMA: &'static str = "kickstarter";
+const DEFAULT_SQL_CONFIG: &'static str = "data/tables.sql";
 
 pub struct Client {
     pub uri: String,
@@ -39,12 +45,9 @@ impl Client {
     pub fn with_config(filename: &str, bootstrap: bool) -> Result<Client> {
 
         // Open config file
-        let mut f = try!(File::open(filename));
-
-        let mut toml = String::new();
-        try!(f.read_to_string(&mut toml));
-
+        let mut toml = try!(Client::read_file_as_string(filename));
         let mut parser = toml::Parser::new(&mut toml);
+
         let config = match parser.parse() {
             Some(config) => config,
             None => return Err(Error::Config(format!("{}: {:?}", ERR_PARSING_CONFIG, parser.errors))),
@@ -53,7 +56,7 @@ impl Client {
         // Read config for schema
         let schema = match config.get("schema") {
             Some(ref s) => s.as_str().unwrap(),
-            None => "kickstarter",
+            None => DEFAULT_SCHEMA,
         };
 
         // Retrieve and open database connection uri        
@@ -66,33 +69,45 @@ impl Client {
         if bootstrap {
             let sql_file = match config.get("sql_file") {
                 Some(ref s) => s.as_str().unwrap(),
-                None => "data/tables.sql",
+                None => DEFAULT_SQL_CONFIG,
             };
 
-            let mut sql_f = try!(File::open(sql_file));
-            let mut cmds = String::new();
-            try!(sql_f.read_to_string(&mut cmds));
-
-            try!(client.db().execute_sql(&format!("DROP SCHEMA {} CASCADE", schema), &vec![]));
-
-            let mut failed = false;
-            for cmd in cmds.split("\n\n") {
-                let result = client.db().execute_sql(cmd, &vec![]);
-                if let Err(ref err) = result {
-                    println!("{}", err);
-                    failed = true;
-                }
-            }
-
-            if failed {
-                println!("Failed to run one or more build commands; skipping model generation.");
-            } else {
-                println!("Successfully built the database! Running model generation...");
-                client.sync();
-            }
+            let cmds = try!(Client::read_file_as_string(sql_file));
+            try!(client.bootstrap(&cmds, schema));
         }
 
         Ok(client)
+    }
+
+    /// Opens a file and returns the content as a String.
+    fn read_file_as_string(filename: &str) -> Result<String> {
+        let mut f = try!(File::open(filename));
+        let mut s = String::new();
+        try!(f.read_to_string(&mut s));
+        Ok(s)
+    }
+
+    /// Rebuilds the database schema and models.
+    fn bootstrap(&self, cmds: &str, schema: &str) -> Result<()> {
+        try!(self.db().execute_sql(&format!("DROP SCHEMA {} CASCADE", schema), &vec![]));
+
+        let mut failed = false;
+        for cmd in cmds.split("\n\n") {
+            let result = self.db().execute_sql(cmd, &vec![]);
+            if let Err(ref err) = result {
+                println!("{}", err);
+                failed = true;
+            }
+        }
+
+        if failed {
+            println!(ERR_FAILED_BUILD);
+        } else {
+            println!(SUCCESS_BUILD);
+            self.sync();
+        }
+
+        Ok(())
     }
 
     /// Returns a reference to the encapsulated database.
@@ -123,7 +138,7 @@ impl Client {
         };
 
         generator::generate_all(self.db.as_dev(), &config);
-        println!("Generated models into the db module.");
+        println!(SUCCESS_GENERATION);
     }
 
     /// Creates a new Kickstarter project with the specified name and goal amount in US dollars.
