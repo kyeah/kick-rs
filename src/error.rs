@@ -21,25 +21,25 @@ pub enum Error {
     IO(io::Error),
 }
 
-impl<'a> From<pledge::Error> for Error {
+impl From<pledge::Error> for Error {
     fn from(err: pledge::Error) -> Error {
         Error::InvalidPledge(err)
     }
 }
 
-impl<'a> From<project::Error> for Error {
+impl From<project::Error> for Error {
     fn from(err: project::Error) -> Error {
         Error::InvalidProject(err)
     }
 }
 
-impl<'a> From<database::DbError> for Error {
+impl From<database::DbError> for Error {
     fn from(err: database::DbError) -> Error {
         Error::Database(err)
     }
 }
 
-impl<'a> From<io::Error> for Error {
+impl From<io::Error> for Error {
     fn from(err: io::Error) -> Error {
         Error::IO(err)
     }
