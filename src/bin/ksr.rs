@@ -154,12 +154,17 @@ fn ensure_build() -> Result<()> {
 // Run commands from stdin.
 fn prompt(client: Client, docopt: Docopt) {
     let stdin = io::stdin();
+    print!("> ");
+    try_return!(io::stdout().flush());
+
     for line in stdin.lock().lines() {
-        print!("> ");
-        try_return!(io::stdout().flush());
         let args = read_args(docopt.clone(), &line.unwrap());
         handle_args(&client, args);
+
         println!("{}", SEPARATOR);
+
+        print!("> ");
+        try_return!(io::stdout().flush());
     }
 }
 
