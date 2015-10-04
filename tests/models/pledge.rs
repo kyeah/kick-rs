@@ -2,12 +2,11 @@ use ::{init_test_projects, init_test_pledges,
        NAMES, USERS, CARDS, CONTRIBUTIONS, NUM_PLEDGES};
 
 use kickstarter::Error;
-use kickstarter::models::{Pledge, User};
+use kickstarter::models::Pledge;
 use kickstarter::db::table;
 
 use postgres::error::SqlState;
 use rustorm::query::Query;
-
 
 #[test]
 fn create_pledge() {
@@ -54,28 +53,4 @@ fn pledge_once_card() {
     if let Err(Error::Database(ref err)) = result {
         assert_eq!(Some(SqlState::UniqueViolation), err.code);
     }    
-}
-
-#[test]
-fn list_pledges() {
-    let (client, _) = init_test_projects();
-    let _ = init_test_pledges(&client);
-
-    // List pledges.
-    let results = User::list_pledges(&client, USERS[0]).unwrap();
-    assert_eq!(1, results.len());
-    assert!(results.contains_key(NAMES[0]));
-
-    let ref pledge = results[NAMES[0]];
-    assert_eq!(CARDS[0], pledge.card);
-    assert_eq!(CONTRIBUTIONS[0], pledge.amount);
-    assert_eq!(1, pledge.user_id);
-    assert_eq!(1, pledge.project_id);
-}
-
-#[test]
-fn list_pledges_none() {
-    let (client, _) = init_test_projects();
-    let results = User::list_pledges(&client, USERS[0]).unwrap();
-    assert!(results.is_empty());
 }
