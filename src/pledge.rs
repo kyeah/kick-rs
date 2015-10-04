@@ -4,11 +4,9 @@ use db::{column, table};
 use models::{Pledge, Project, User};
 
 use postgres::error::SqlState;
-use rustorm::dao::FromValue;
-use rustorm::database::{Database, DbError};
-use rustorm::query::{Equality, Query};
+use rustorm::database::DbError;
+use rustorm::query::Query;
 
-use std::collections::BTreeMap;
 use std::error::Error as ErrorTrait;
 
 impl Pledge {
@@ -80,32 +78,5 @@ impl Pledge {
         try!(validate::alphanumeric(user));
         try!(validate::luhn10(card));
         Ok(())
-    }
-
-    /// Retrieve a map of all pledges that a user has made to Kickstarter projects.
-    /// Returns a map of project names to Pledge objects.
-    pub fn list_for_user(client: &Client, user: &str) -> Result<BTreeMap<String, Pledge>> {
-
-        // Get all pledges, along with the project name.
-        // Rust maps don't have ordered insertion support, so don't bother ordering by date_created.
-        let dao_results = try!(Query::select()
-            .column(&"pl.*")
-            .column(&"pr.name")
-            .from_table(&client.table_abbr(table::pledge))
-            .inner_join_table(&client.table_abbr(table::user), &"pl.user_id", &"us.user_id")
-            .inner_join_table(&client.table_abbr(table::project), &"pl.project_id", &"pr.project_id")
-            .filter(&"us.name", Equality::EQ, &user)
-            .retrieve(client.db()));
-
-        // Map project names to the pledge data
-        let mut results: BTreeMap<String, Pledge> = BTreeMap::new();
-        let mut pledges: Vec<Pledge> = dao_results.cast();
-
-        for dao in dao_results.dao.iter().rev() {
-            let name = FromValue::from_type(dao.get_value(column::name));
-            results.insert(name, pledges.pop().unwrap());
-        }
-
-        Ok(results)
     }
 }

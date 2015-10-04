@@ -171,6 +171,6 @@ impl Client {
 
     /// Returns a map of all Kickstarter projects backed by a user, along with the pledge information.
     pub fn list_backed_projects(&self, user: &str) -> Result<BTreeMap<String, Pledge>> {
-        Pledge::list_for_user(&self, user)
+        User::list_pledges(&self, user)
     }
 }
