@@ -3,7 +3,6 @@ use {Error, Result};
 use models::{Pledge, Project, User};
 
 use codegenta::generator::{self, Config};
-
 use rustorm::database::Database;
 use rustorm::pool::{ManagedPool, Platform};
 
@@ -13,12 +12,13 @@ use std::io::Read;
 use toml;
 
 const ERR_PARSING_CONFIG: &'static str = "Failed to parse configuration file";
-const ERR_MISSING_URI: &'static str = "Configuration has no database connection string 'uri'";
-const ERR_FAILED_BUILD: &'static str = "Failed to run one or more build commands; skipping model generation.";
-const SUCCESS_BUILD: &'static str = "Successfully built the database!";
+const ERR_MISSING_URI:    &'static str = "Configuration has no database connection string 'uri'";
+const ERR_FAILED_BUILD:   &'static str = "Failed to run one or more build commands; skipping model generation.";
+const SUCCESS_BUILD:      &'static str = "Successfully built the database!";
 const SUCCESS_GENERATION: &'static str = "Generated models into the db module.";
 
-const DEFAULT_SCHEMA: &'static str = "kickstarter";
+// Default configurations.
+const DEFAULT_SCHEMA:     &'static str = "kickstarter";
 const DEFAULT_SQL_CONFIG: &'static str = "data/tables.sql";
 
 /// Interfaces with a Kickstarter application running on a PostgreSQL database.
@@ -149,15 +149,13 @@ impl Client {
     }
 
     /// Creates a new Kickstarter project with the specified name and goal amount in US dollars.
-    pub fn create_project(&self, project_name: &str, amount: f64) -> Result<()> {
-        let _ = try!(Project::create(&self, project_name, amount));
-        Ok(())
+    pub fn create_project(&self, project_name: &str, amount: f64) -> Result<Project> {
+        Project::create(&self, project_name, amount)
     }
     
     /// Backs an existing Kickstarter project with the specified user, credit card, and contribution amount.
-    pub fn back_project(&self, user: &str, project_name: &str, card: &str, amount: f64) -> Result<()> {
-        let _ = try!(Pledge::create(&self, user, project_name, card, amount));
-        Ok(())
+    pub fn back_project(&self, user: &str, project_name: &str, card: &str, amount: f64) -> Result<Pledge> {
+        Pledge::create(&self, user, project_name, card, amount)
     }
 
     /// Returns a map of all backers and their contributions 

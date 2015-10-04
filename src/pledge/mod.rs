@@ -8,7 +8,6 @@ use db::{column, table};
 use models::{Pledge, Project, User};
 
 use postgres::error::SqlState;
-
 use rustorm::dao::FromValue;
 use rustorm::database::{Database, DbError};
 use rustorm::query::{Equality, Query};
