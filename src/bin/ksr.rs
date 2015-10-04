@@ -188,7 +188,7 @@ fn run_file(client: Client, docopt: Docopt, filename: &str) {
 
     // Run each command without checking for errors.
     for (cmd, args) in run_list {
-        println!("Running: {}", cmd);
+        println!("> {}", cmd);
         handle_args(&client, args);
         println!("{}", SEPARATOR);
     }
