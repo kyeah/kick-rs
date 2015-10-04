@@ -6,27 +6,26 @@ use docopt::Docopt;
 use kickstarter::{Client, Result, Error};
 use std::io::{self, Write};
 
-const DEFAULT_CONFIG: &'static str = "data/config.toml";
-
 const USAGE: &'static str = "
 The Real Kickstarter.
 
 Usage:
-    ksr project <name> <amount>
-    ksr back    <user> <name> <card> <amount>
-    ksr list    <name>
-    ksr backer  <user>
-    ksr listall
+    ksr project <name> <amount>                [--config=<cfile>]
+    ksr back    <user> <name> <card> <amount>  [--config=<cfile>]
+    ksr list    <name>                         [--config=<cfile>]
+    ksr backer  <user>                         [--config=<cfile>]
+    ksr listall                                [--config=<cfile>]
+    ksr (-b | --build)                         [--config=<cfile>]
+    ksr (-s | --sync)                          [--config=<cfile>]
     ksr (-h | --help)
     ksr (-v | --version)
-    ksr (-b | --build)
-    ksr (-s | --sync)
 
 Options:
-    -h --help      Show this message
-    -v --version   Show version
-    -s --sync      Sync generated models with db tables
-    -b --build     Build tables and models from configured .sql file
+    -h --help          Show this message
+    -v --version       Show version
+    -s --sync          Sync generated models with db tables
+    -b --build         Build tables and models from configured .sql file
+    --config=<cfile>   The .toml configuration file [default: data/config.toml]
 
 Commands:
     project    Create a new project
@@ -82,6 +81,7 @@ struct Args {
     flag_version: bool,
     flag_sync: bool,
     flag_build: bool,
+    flag_config: String,
 }
 
 fn main() {
@@ -101,7 +101,7 @@ fn main() {
     }
 
     // Connect to the database.
-    let client = Client::with_config(DEFAULT_CONFIG, args.flag_build, true).unwrap();
+    let client = Client::with_config(&args.flag_config, args.flag_build, true).unwrap();
 
     // Wipe the database the sync it with the configuration file, then generate the associated models.
     if args.flag_sync {

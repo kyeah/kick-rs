@@ -1,7 +1,7 @@
 The Real Kickstarter
 =====================
 
-A mini-Kickstarter application and CLI playground for identifying issues in current Rust ORMs and command-line parsers. Also James told me to make this.
+A mini-Kickstarter application and CLI playground for identifying issues in current Rust ORMs and command-line parsers. Also James told me to make this. Hi James!
 
 ## Usage
 
@@ -26,6 +26,7 @@ Options:
     -v --version   Show version
     -s --sync      Sync generated models with db tables
     -b --build     Build tables and models from configured .sql file
+    --config=<>    The .toml configuration file [default: data/config.toml]
 
 Commands:
     project    Create a new project
