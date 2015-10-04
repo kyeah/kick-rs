@@ -1,7 +1,7 @@
 The Real Kickstarter
 =====================
 
-A mini-Kickstarter application and CLI playground for identifying issues in current Rust ORMs and command-line parsers.
+A mini-Kickstarter application and CLI playground for identifying issues in current Rust ORMs and command-line parsers. Also James told me to make this.
 
 ## Usage
 
