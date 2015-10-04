@@ -18,8 +18,8 @@ use std::convert::From;
 impl Project {
 
     /// Creates a new Kickstarter project with the provided goal amount in dollars.
-    /// Returns the number of rows affected in the project table, equal to 1 on success.
-    pub fn create(client: &Client, project_name: &str, amount: f64) -> Result<usize> {
+    /// Returns the created project on success.
+    pub fn create(client: &Client, project_name: &str, amount: f64) -> Result<Project> {
 
         // Names must be alphanumeric and between 4 & 20 characters.
         try!(validate::length(project_name, 4, 20, From::from(Error::NameLength)));
@@ -33,17 +33,18 @@ impl Project {
             .set(column::name, &project_name)
             .set(column::goal, &amount)
             .into_table(&client.table(table::project))
-            .execute(client.db());
+            .return_all()
+            .collect_one(client.db());
 
         // and catch uniqueness violations to return a custom error.
         Project::check_valid_errors(&mut result, project_name);
 
-        let num_affected = try!(result);
-        Ok(num_affected)
+        let project = try!(result);
+        Ok(project)
     }
 
     /// Checks project creation results for acceptable errors, and reformats the message.
-    fn check_valid_errors(res: &mut ::std::result::Result<usize, DbError>, project_name: &str) {
+    fn check_valid_errors(res: &mut ::std::result::Result<Project, DbError>, project_name: &str) {
 
         let mut message = String::new();        
 
@@ -91,9 +92,9 @@ impl Project {
             .column(&"us.*")
             .column(&"pl.amount")
             .column(&"pr.goal")
-            .from_table(&client.table_abbr(table::user))
-            .inner_join_table(&client.table_abbr(table::pledge), &"pl.user_id", &"us.user_id")
-            .inner_join_table(&client.table_abbr(table::project), &"pl.project_id", &"pr.project_id")
+            .from_table(&client.table_abbr(table::project))
+            .left_join_table(&client.table_abbr(table::pledge), &"pl.project_id", &"pr.project_id")
+            .left_join_table(&client.table_abbr(table::user), &"pl.user_id", &"us.user_id")
             .filter(&"pr.name", Equality::EQ, &project_name)
             .retrieve(client.db()));
 
@@ -108,8 +109,11 @@ impl Project {
         let mut users: Vec<User> = dao_results.cast();
 
         for dao in dao_results.dao.iter().rev() {
-            let amount = FromValue::from_type(dao.get_value(column::amount));
-            results.insert(users.pop().unwrap(), amount);
+            let val = dao.get_value(column::amount);
+            if val != Value::Null {
+                let amount = FromValue::from_type(val);
+                results.insert(users.pop().unwrap(), amount);
+            }
         }
 
         Ok((results, FromValue::from_type(goal)))

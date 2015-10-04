@@ -14,7 +14,7 @@ use toml;
 const ERR_PARSING_CONFIG: &'static str = "Failed to parse configuration file";
 const ERR_MISSING_URI: &'static str = "Configuration has no database connection string 'uri'";
 const ERR_FAILED_BUILD: &'static str = "Failed to run one or more build commands; skipping model generation.";
-const SUCCESS_BUILD: &'static str = "Successfully built the database! Running model generation...";
+const SUCCESS_BUILD: &'static str = "Successfully built the database!";
 const SUCCESS_GENERATION: &'static str = "Generated models into the db module.";
 
 const DEFAULT_SCHEMA: &'static str = "kickstarter";
