@@ -2,3 +2,4 @@
 # ===============================
 
 uri = "postgres://user:pass@localhost:5432/kickstarter"
+sql_config = "data/tables.sql"
