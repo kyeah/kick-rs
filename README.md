@@ -94,6 +94,6 @@ You can build or rebuild the schema at any time by running `ksr --build`. This w
 
 ### Testing
 
-The integration tests rely on a live test database defined in [tests/data/config.toml](tests/data/config.toml). Make sure that the provided database exists and that the Rust tests are running on a single-thread before executing `cargo test`.
+The integration tests rely on a live test database defined in [tests/data](tests/data). Make sure that the provided database exists and that the Rust tests are running on a single-thread before executing `cargo test`.
 
 `export RUST_TEST_THREADS=1`.
