@@ -1,10 +1,8 @@
 //! Kickstarter data validations
 pub mod error;
-pub use self::error::Error;
+pub use self::error::{Error, Result};
 
-use Result;
 use regex::Regex;
-use std::convert::From;
 
 lazy_static! {
     static ref ALPHANUM: Regex = Regex::new(r"^[a-zA-Z0-9_-]+$").unwrap();
@@ -14,7 +12,7 @@ lazy_static! {
 /// Validates that the float is positive, and rounds it to two decimal places.
 pub fn currency(f: f64) -> Result<f64> {
     if f <= 0.0 {
-        return Err(From::from(Error::InvalidAmount));
+        return Err(Error::InvalidAmount);
     }
 
     // Convert to rounded string and reconvert back;
@@ -38,7 +36,7 @@ pub fn regex(reg: &Regex, s: &str, error: Error) -> Result<()> {
     if reg.is_match(s) {
         Ok(())
     } else {
-        Err(From::from(error))
+        Err(error)
     }
 }
 
@@ -48,7 +46,7 @@ pub fn length(s: &str, min: i32, max: i32) -> Result<()> {
     if min as usize <= len && len <= max as usize {
         Ok(())
     } else {
-        Err(From::from(Error::Length(s.to_owned(), min as usize, max as usize)))
+        Err(Error::Length(s.to_owned(), min as usize, max as usize))
     }
 }
 
@@ -82,6 +80,6 @@ pub fn luhn10(s: &str) -> Result<()> {
     if sum % 10 == 0 && !s.is_empty() {
         Ok(())
     } else {
-        Err(From::from(Error::NotLuhn10(s.to_owned())))
+        Err(Error::NotLuhn10(s.to_owned()))
     }
 }
