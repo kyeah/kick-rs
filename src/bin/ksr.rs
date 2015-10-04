@@ -93,7 +93,7 @@ struct Args {
 
 fn main() {
 
-    let docopt = Docopt::new(USAGE).unwrap();
+    let docopt = try_return!(Docopt::new(USAGE));
 
     let args: Args = docopt.clone().decode()
         .unwrap_or_else(|e| e.exit());
@@ -110,7 +110,7 @@ fn main() {
     }
 
     // Connect to the database.
-    let client = Client::with_config(&args.flag_config, args.flag_build, true).unwrap();
+    let client = try_return!(Client::with_config(&args.flag_config, args.flag_build, true));
 
     // Wipe the database and sync it with the configuration file, then generate the associated models.
     if args.flag_sync {
@@ -281,7 +281,7 @@ fn cmd_backer(client: &Client, args: Args) {
     } else {
         let mut total = 0f64;
         for (project, pledge) in &results {
-            println!("{} backed project {} for ${:.2}", user, project, pledge.amount);
+            println!("{} backed project '{}' for ${:.2}", user, project, pledge.amount);
             total += pledge.amount;
         }
         println!("{} has given ${:.2} back to their community. Thanks {}!", user, total, user);
