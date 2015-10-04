@@ -1,3 +1,4 @@
+//! The high-level client library for interacting with Kickstarter.
 use ::{Error, Result};
 use ::models::{Pledge, Project, User};
 
@@ -20,9 +21,13 @@ const SUCCESS_GENERATION: &'static str = "Generated models into the db module.";
 const DEFAULT_SCHEMA: &'static str = "kickstarter";
 const DEFAULT_SQL_CONFIG: &'static str = "data/tables.sql";
 
+/// Interfaces with a Kickstarter application running on a PostgreSQL database.
 pub struct Client {
+    /// PostgreSQL connection URI.
     pub uri: String,
+    /// Database schema name for kickstarter data.
     pub schema: String,
+    /// Persistent database connection.
     db: Platform,
 }
 

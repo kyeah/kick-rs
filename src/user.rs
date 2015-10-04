@@ -1,3 +1,4 @@
+//! User implementation
 use ::{Client, Result};
 use ::models::User;
 

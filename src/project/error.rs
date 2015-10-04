@@ -1,3 +1,4 @@
+//! Project-operation error module
 use ::Result;
 use std::error::Error as ErrorTrait;
 use std::fmt;

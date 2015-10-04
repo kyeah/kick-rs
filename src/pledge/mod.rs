@@ -1,3 +1,4 @@
+//! Module for interacting with Kickstarter pledges.
 pub mod error;
 
 pub use self::error::Error;

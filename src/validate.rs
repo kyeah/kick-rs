@@ -1,3 +1,4 @@
+//! Kickstarter data validations
 use ::{pledge, Error, Result};
 use regex::Regex;
 use std::convert::From;

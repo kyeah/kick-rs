@@ -1,3 +1,4 @@
+//! Module for interacting with Kickstarter projects.
 pub mod error;
 
 pub use self::error::Error;
