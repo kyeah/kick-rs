@@ -80,6 +80,8 @@ Thanks to Cargo, building Rust packages is really easy!
 
 `cargo build [--release]`
 
+The `ksr` binary executable will be built under `target/debug` or `target/release`.
+
 ### Database Setup
 
 To create the database, run `createdb <db_name>`. The default name is `kickstarter`. 
