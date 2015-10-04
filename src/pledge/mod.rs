@@ -8,6 +8,7 @@ use ::models::{Pledge, Project, User};
 
 use postgres::error::SqlState;
 
+use rustorm::dao::FromValue;
 use rustorm::database::{Database, DbError};
 use rustorm::query::{Equality, Query};
 
@@ -18,7 +19,7 @@ use std::error::Error as ErrorTrait;
 impl Pledge {
 
     /// Creates a new pledge for an existing project.
-    pub fn create(client: &Client, user: &str, project_name: &str, card: &str, amount: f64) -> Result<usize> {
+    pub fn create(client: &Client, user: &str, project_name: &str, card: &str, amount: f64) -> Result<Pledge> {
 
         try!(Pledge::validate_args(user, project_name, card));
 
@@ -35,16 +36,17 @@ impl Pledge {
             .set(column::card, &card)
             .set(column::amount, &amount)
             .into_table(&client.table(table::pledge))
-            .execute(client.db());
+            .return_all()
+            .collect_one(client.db());
 
         Pledge::check_valid_errors(&mut res, user, project_name, card);
 
-        let num_affected = try!(res);
-        Ok(num_affected)
+        let pledge = try!(res);
+        Ok(pledge)
     }
 
     /// Checks pledge creation results for acceptable errors, and reformats the message.
-    fn check_valid_errors(res: &mut ::std::result::Result<usize, DbError>,
+    fn check_valid_errors(res: &mut ::std::result::Result<Pledge, DbError>,
                           user: &str, project_name: &str, card: &str) {
 
         // Check for uniqueness violations.
@@ -106,7 +108,7 @@ impl Pledge {
         let mut pledges: Vec<Pledge> = dao_results.cast();
 
         for dao in dao_results.dao.iter().rev() {
-            let name = dao.get_value(column::name).to_string();
+            let name = FromValue::from_type(dao.get_value(column::name));
             results.insert(name, pledges.pop().unwrap());
         }
 

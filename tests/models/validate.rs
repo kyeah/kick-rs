@@ -29,6 +29,7 @@ fn currency_valid() {
 #[test]
 fn alphanumeric_non_alphanum() {
     let invalid = vec![
+        "Shakey Graves",
         "abcde*",
         "_!__",
         "$",

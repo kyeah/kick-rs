@@ -1,4 +1,4 @@
-use ::init_client;
+use ::{init_client, init_test_projects, NAMES, GOALS, NUM_PROJECTS};
 
 use kickstarter::{project, Error};
 use kickstarter::models::{Pledge, Project};
@@ -10,35 +10,38 @@ use rustorm::query::Query;
 
 #[test]
 fn create_project() {
-    let client = init_client();
+    let (client, projects) = init_test_projects();
+    
+    // Check that all Project::create calls returned the right information.
+    for i in (0..NUM_PROJECTS) {
+        let ref project = projects[i];
+        assert_eq!(NAMES[i], project.name);
+        assert_eq!(GOALS[i], project.goal);
+    }
 
-    let name = "GoGo_Applesauce";
-    let amount = 250000f64;
-    let project = Project::create(&client, name, amount).unwrap();
-
-    assert_eq!(name, project.name);
-    assert_eq!(amount, project.goal);
-
-    let found_project: Project = Query::select_all()
+    // Query and cross-check with the expected information.
+    let found_projects: Vec<Project> = Query::select_all()
         .from_table(&client.table(table::project))
-        .collect_one(client.db())
+        .collect(client.db())
         .unwrap();
 
-    assert_eq!(name, found_project.name);
-    assert_eq!(amount, found_project.goal);
+    assert_eq!(NUM_PROJECTS, found_projects.len());
+
+    for i in (0..NUM_PROJECTS) {
+        // Check that each name is found within the queried projects vector.
+        let index = found_projects.iter().position(|project| project.name == NAMES[i]).unwrap();
+
+        // Check that the associated goal is correct.
+        assert_eq!(GOALS[i], found_projects[index].goal);
+    }
 }
 
 #[test]
 fn unique_name() {
-    let client = init_client();
-
-    let name = "GoGo_Applesauce";
-    let amount = 250000f64;
-    let _ = Project::create(&client, name, amount).unwrap();
-    
-    let result = Project::create(&client, name, 250f64);
+    let (client, _) = init_test_projects();
+    let result = Project::create(&client, NAMES[0], 250f64);
     assert!(result.is_err());
-    
+
     if let Err(Error::Database(ref err)) = result {
         assert_eq!(Some(SqlState::UniqueViolation), err.code);
     }
@@ -46,14 +49,9 @@ fn unique_name() {
 
 #[test]
 fn get_id_by_name() {
-    let client = init_client();
-    
-    let name = "GoGo_Applesauce";
-    let amount = 250000f64;
-    let project = Project::create(&client, name, amount).unwrap();
-
-    let id = Project::get_id(&client, name).unwrap();
-    assert_eq!(project.project_id, FromValue::from_type(id));
+    let (client, projects) = init_test_projects();
+    let id = Project::get_id(&client, NAMES[0]).unwrap();
+    assert_eq!(projects[0].project_id, FromValue::from_type(id));
 }
 
 #[test]
@@ -69,20 +67,13 @@ fn get_id_missing() {
 
 #[test]
 fn list_all() {
-    let client = init_client();
-    let names = vec!["Doritos", "Cheetos", "Exquisite_Banana"];
-    let amounts = vec![1000f64, 5000.50f64, 1f64];
-    
-    for i in (0..3) {
-        Project::create(&client, names[i], amounts[i]).unwrap();        
-    }
-
+    let (client, _) = init_test_projects();
     let projects = Project::list_all(&client).unwrap();
-    assert_eq!(3, projects.len());
+    assert_eq!(NUM_PROJECTS, projects.len());
 
-    for i in (0..3) {
-        let index = projects.iter().position(|project| project.name == names[i]).unwrap();
-        assert_eq!(amounts[i], projects[index].goal);
+    for i in (0..NUM_PROJECTS) {
+        let index = projects.iter().position(|project| project.name == NAMES[i]).unwrap();
+        assert_eq!(GOALS[i], projects[index].goal);
     }
 }
 
@@ -95,22 +86,20 @@ fn list_none() {
 
 #[test]
 fn list_backers() {
-    let client = init_client();
+    let (client, _) = init_test_projects();
 
-    let name = "Seattle_Dance_Party";
-    let amount = 12000f64;
-    let _ = Project::create(&client, name, amount).unwrap();
-
+    // Create pledges.
     let users         = vec!["Johnnyboy", "Margie"];
     let contributions = vec![100f64, 200f64];
     let cards         = vec!["351149395124027", "6011168468345649"];
     
     for i in (0..2) {
-        Pledge::create(&client, users[i], name, cards[i], contributions[i]).unwrap();
+        Pledge::create(&client, users[i], NAMES[0], cards[i], contributions[i]).unwrap();
     }
 
-    let (backers, goal) = Project::list_backers(&client, name).unwrap();
-    assert_eq!(amount, goal);
+    // List backers.
+    let (backers, goal) = Project::list_backers(&client, NAMES[0]).unwrap();
+    assert_eq!(GOALS[0], goal);
     
     for (backer, contribution) in backers {
         let index = users.iter().position(|&name| name == backer.name).unwrap();
@@ -120,14 +109,9 @@ fn list_backers() {
 
 #[test]
 fn list_backers_none() {
-    let client = init_client();
-
-    let name = "Alt_Dance_Owl";
-    let amount = 500f64;
-    let _ = Project::create(&client, name, amount).unwrap();
-    let (backers, goal) = Project::list_backers(&client, name).unwrap();
-
-    assert_eq!(amount, goal);
+    let (client, _) = init_test_projects();
+    let (backers, goal) = Project::list_backers(&client, NAMES[0]).unwrap();
+    assert_eq!(GOALS[0], goal);
     assert!(backers.is_empty());
 }
 
