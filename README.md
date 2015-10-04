@@ -11,6 +11,7 @@ A simple CLI is provided for bootstrapping and interacting with a local copy of 
 
 ```sh
 Usage:
+    ksr run     [<file>]
     ksr project <name> <amount>
     ksr back    <user> <name> <card> <amount>
     ksr list    <name>
@@ -26,7 +27,7 @@ Options:
     -v --version   Show version
     -s --sync      Sync generated models with db tables
     -b --build     Build tables and models from configured .sql file
-    --config=<>    The .toml configuration file [default: data/config.toml]
+    --config=<f>   The .toml configuration file [default: data/config.toml]
 
 Commands:
     project    Create a new project
@@ -34,6 +35,7 @@ Commands:
     list       List all pledges towards a project
     backer     List all pledges that a backer has made
     listall    List all existing projects
+    run        Streaming CLI
 ```
 
 Here are a few examples of usage:

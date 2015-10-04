@@ -4,12 +4,16 @@ extern crate kickstarter;
 
 use docopt::Docopt;
 use kickstarter::{Client, Result, Error};
-use std::io::{self, Write};
+use std::fs::File;
+use std::io::{self, BufRead, Read, Write};
+
+const SEPARATOR: &'static str = "=======================================";
 
 const USAGE: &'static str = "
 The Real Kickstarter.
 
 Usage:
+    ksr run     [<file>]                       [--config=<cfile>]
     ksr project <name> <amount>                [--config=<cfile>]
     ksr back    <user> <name> <card> <amount>  [--config=<cfile>]
     ksr list    <name>                         [--config=<cfile>]
@@ -33,6 +37,7 @@ Commands:
     list       List all pledges towards a project
     backer     List all pledges that a backer has made
     listall    List all existing projects
+    run        Streaming CLI
 
 Examples:
     project Sensel_Control_Pad 250000.00
@@ -69,11 +74,13 @@ macro_rules! try_return {
 
 #[derive(Debug, RustcDecodable)]
 struct Args {
+    cmd_run: bool,
     cmd_project: bool,
     cmd_back: bool,
     cmd_list: bool,
     cmd_backer: bool,
     cmd_listall: bool,
+    arg_file: Option<String>,
     arg_user: Option<String>,
     arg_name: Option<String>,
     arg_card: Option<String>,
@@ -85,8 +92,10 @@ struct Args {
 }
 
 fn main() {
-    let args: Args = Docopt::new(USAGE)
-        .and_then(|d| d.decode())
+
+    let docopt = Docopt::new(USAGE).unwrap();
+
+    let args: Args = docopt.clone().decode()
         .unwrap_or_else(|e| e.exit());
 
     // Print the library version.
@@ -103,26 +112,23 @@ fn main() {
     // Connect to the database.
     let client = Client::with_config(&args.flag_config, args.flag_build, true).unwrap();
 
-    // Wipe the database the sync it with the configuration file, then generate the associated models.
+    // Wipe the database and sync it with the configuration file, then generate the associated models.
     if args.flag_sync {
         client.sync();
     }
 
-    // Execute desired commands.
-    if args.cmd_project {
-        cmd_project(&client, args);
-
-    } else if args.cmd_back {
-        cmd_back(&client, args);
-
-    } else if args.cmd_list {
-        cmd_list(&client, args);
-
-    } else if args.cmd_backer {
-        cmd_backer(&client, args);
-
-    } else if args.cmd_listall {
-        cmd_listall(&client);
+    if args.flag_build || args.flag_sync {
+        return;
+    }
+    
+    // Handle main kickstarter commands.
+    if !args.cmd_run {
+        handle_args(&client, args);
+    } else {
+        match args.arg_file {
+            None => prompt(client, docopt),
+            Some(ref filename) => run_file(client, docopt, filename),
+        }
     }
 }
 
@@ -142,6 +148,81 @@ fn ensure_build() -> Result<()> {
         Err(Error::Config("Cancelled rebuild.".to_owned()))
     } else {
         Ok(())
+    }
+}
+
+// Run commands from stdin.
+fn prompt(client: Client, docopt: Docopt) {
+    let stdin = io::stdin();
+    for line in stdin.lock().lines() {
+        print!("> ");
+        try_return!(io::stdout().flush());
+        let args = read_args(docopt.clone(), &line.unwrap());
+        handle_args(&client, args);
+        println!("{}", SEPARATOR);
+    }
+}
+
+// Run a list of commands provided via file.
+// This will not run anything unless all lines are successfully parsed.
+fn run_file(client: Client, docopt: Docopt, filename: &str) {
+
+    let cmds = try_return!(read_file_as_string(filename));
+
+    // Split into a list of commands.
+    let mut run_list: Vec<(&str, Args)> = vec![];
+    let runs: Vec<&str> = cmds.split("\n")
+        .filter(|s| !s.is_empty())
+        .collect();
+
+    // Parse each command.
+    for run in &runs {
+        let doc_args = read_args(docopt.clone(), run);
+        run_list.push((run, doc_args));
+    }
+
+    // Run each command without checking for errors.
+    for (cmd, args) in run_list {
+        println!("Running: {}", cmd);
+        handle_args(&client, args);
+        println!("{}", SEPARATOR);
+    }
+}
+
+fn read_file_as_string(filename: &str) -> Result<String> {
+    let mut f = try!(File::open(filename));
+    let mut s = String::new();
+    try!(f.read_to_string(&mut s));
+    Ok(s)
+}
+
+// Parses a single command without the `ksr` prefix.
+fn read_args(docopt: Docopt, line: &str) -> Args {
+    let formatted = format!("ksr {}", line);
+    let args = formatted.split(" ");
+    let doc = docopt.argv(args);
+    doc.decode().unwrap_or_else(|e| {
+        println!("Attempted to parse args: {}", line); 
+        e.exit()
+    })
+}
+
+// Run the appropriate command based on arguments.
+fn handle_args(client: &Client, args: Args) {
+    if args.cmd_project {
+        cmd_project(&client, args);
+
+    } else if args.cmd_back {
+        cmd_back(&client, args);
+
+    } else if args.cmd_list {
+        cmd_list(&client, args);
+
+    } else if args.cmd_backer {
+        cmd_backer(&client, args);
+
+    } else if args.cmd_listall {
+        cmd_listall(&client);
     }
 }
 
