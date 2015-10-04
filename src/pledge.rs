@@ -1,8 +1,4 @@
 //! Module for interacting with Kickstarter pledges.
-pub mod error;
-
-pub use self::error::Error;
-
 use {validate, Client, Result};
 use db::{column, table};
 use models::{Pledge, Project, User};
@@ -12,7 +8,6 @@ use rustorm::dao::FromValue;
 use rustorm::database::{Database, DbError};
 use rustorm::query::{Equality, Query};
 
-use std::convert::From;
 use std::collections::BTreeMap;
 use std::error::Error as ErrorTrait;
 
@@ -24,7 +19,7 @@ impl Pledge {
         try!(Pledge::validate_args(user, project_name, card));
 
         // Validate and truncate currency amount.
-        let amount = try!(validate::currency(amount, From::from(Error::InvalidAmount)));
+        let amount = try!(validate::currency(amount));
 
         let uid = try!(User::upsert(client, user));
         let pid = try!(Project::get_id(client, project_name));
@@ -78,12 +73,11 @@ impl Pledge {
     /// User names must be alphanumeric and between 4 and 20 characters.
     /// Credit card numbers must be under 20 characters and pass the numeric & Luhn-10 tests.
     fn validate_args(user: &str, project_name: &str, card: &str) -> Result<()> {
-        try!(validate::length(project_name, 4, 20, From::from(::project::Error::NameLength)));
-        try!(validate::length(user, 4, 20, From::from(Error::NameLength)));
-        try!(validate::length(card, 1, 19, From::from(Error::CardLength)));
-        try!(validate::alphanumeric(project_name, From::from(::project::Error::NameNotAlphaNumeric)));
-        try!(validate::alphanumeric(user, From::from(Error::NameNotAlphaNumeric)));
-        try!(validate::numtext(card, From::from(Error::CardNotNumeric)));
+        try!(validate::length(project_name, 4, 20));
+        try!(validate::length(user, 4, 20));
+        try!(validate::length(card, 1, 19));
+        try!(validate::alphanumeric(project_name));
+        try!(validate::alphanumeric(user));
         try!(validate::luhn10(card));
         Ok(())
     }

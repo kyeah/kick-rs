@@ -1,8 +1,4 @@
 //! Module for interacting with Kickstarter projects.
-pub mod error;
-
-pub use self::error::Error;
-
 use {validate, Client, Result};
 use db::{column, table};
 use models::{Project, User};
@@ -22,11 +18,11 @@ impl Project {
     pub fn create(client: &Client, project_name: &str, amount: f64) -> Result<Project> {
 
         // Names must be alphanumeric and between 4 & 20 characters.
-        try!(validate::length(project_name, 4, 20, From::from(Error::NameLength)));
-        try!(validate::alphanumeric(project_name, From::from(Error::NameNotAlphaNumeric)));
+        try!(validate::length(project_name, 4, 20));
+        try!(validate::alphanumeric(project_name));
 
         // Validate and truncate the currency amount.
-        let amount = try!(validate::currency(amount, From::from(Error::InvalidAmount)));
+        let amount = try!(validate::currency(amount));
 
         // Attempt to insert project into the table...
         let mut result = Query::insert()
@@ -68,7 +64,7 @@ impl Project {
                           .retrieve(client.db()));
 
         if result.dao.is_empty() {
-            Err(From::from(Error::ProjectDoesNotExist))
+            Err(From::from(validate::Error::ProjectDoesNotExist))
         } else {
             let id = result.dao[0].values.get(column::project_id).unwrap();
             Ok(id.clone())
@@ -99,7 +95,7 @@ impl Project {
             .retrieve(client.db()));
 
         if dao_results.dao.is_empty() {
-            return Err(From::from(Error::ProjectDoesNotExist));
+            return Err(From::from(validate::Error::ProjectDoesNotExist));
         }
 
         let goal = dao_results.dao[0].get_value(column::goal);        

@@ -1,5 +1,5 @@
 //! Kickstarter errors
-use {pledge, project};
+use validate;
 use rustorm::database;
 use std::{error, fmt, io, result};
 
@@ -9,10 +9,8 @@ pub type Result<T> = result::Result<T, Error>;
 /// The error type for Kickstarter operations.
 #[derive(Debug)]
 pub enum Error {
-    /// A pledge operation could not be completed.
-    InvalidPledge(pledge::Error),
-    /// A project operation could not be completed.
-    InvalidProject(project::Error),
+    /// Provided data was invalid.
+    InvalidData(validate::Error),
     /// An error occurred with the provided configuration.
     Config(String),
     /// A database operation could not be completed.
@@ -21,15 +19,9 @@ pub enum Error {
     IO(io::Error),
 }
 
-impl From<pledge::Error> for Error {
-    fn from(err: pledge::Error) -> Error {
-        Error::InvalidPledge(err)
-    }
-}
-
-impl From<project::Error> for Error {
-    fn from(err: project::Error) -> Error {
-        Error::InvalidProject(err)
+impl From<validate::Error> for Error {
+    fn from(err: validate::Error) -> Error {
+        Error::InvalidData(err)
     }
 }
 
@@ -48,8 +40,7 @@ impl From<io::Error> for Error {
 impl fmt::Display for Error {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            Error::InvalidPledge(ref inner) => inner.fmt(fmt),            
-            Error::InvalidProject(ref inner) => inner.fmt(fmt),
+            Error::InvalidData(ref inner) => inner.fmt(fmt),
             Error::Database(ref inner) => inner.fmt(fmt),
             Error::IO(ref inner) => inner.fmt(fmt),
             Error::Config(ref inner) => inner.fmt(fmt),
@@ -60,8 +51,7 @@ impl fmt::Display for Error {
 impl error::Error for Error {
     fn description(&self) -> &str {
         match *self {
-            Error::InvalidPledge(ref inner) => inner.description(),
-            Error::InvalidProject(ref inner) => inner.description(),
+            Error::InvalidData(ref inner) => inner.description(),
             Error::Database(ref inner) => inner.description(),
             Error::IO(ref inner) => inner.description(),
             Error::Config(ref inner) => inner,
@@ -70,8 +60,7 @@ impl error::Error for Error {
 
     fn cause(&self) -> Option<&error::Error> {
         match *self {
-            Error::InvalidPledge(ref inner) => Some(inner),
-            Error::InvalidProject(ref inner) => Some(inner),
+            Error::InvalidData(ref inner) => Some(inner),
             Error::Database(ref inner) => Some(inner),
             Error::IO(ref inner) => Some(inner),
             Error::Config(_) => None,

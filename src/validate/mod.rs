@@ -1,5 +1,8 @@
 //! Kickstarter data validations
-use {pledge, Error, Result};
+pub mod error;
+pub use self::error::Error;
+
+use Result;
 use regex::Regex;
 use std::convert::From;
 
@@ -9,9 +12,9 @@ lazy_static! {
 }
 
 /// Validates that the float is positive, and rounds it to two decimal places.
-pub fn currency(f: f64, error: Error) -> Result<f64> {
+pub fn currency(f: f64) -> Result<f64> {
     if f <= 0.0 {
-        return Err(error)
+        return Err(From::from(Error::InvalidAmount));
     }
 
     // Convert to rounded string and reconvert back;
@@ -21,13 +24,13 @@ pub fn currency(f: f64, error: Error) -> Result<f64> {
 }
 
 /// Validates that the string is alphanumeric and contains only underscores and dahes as special characters.
-pub fn alphanumeric(s: &str, error: Error) -> Result<()> {
-    regex(&ALPHANUM, s, error)
+pub fn alphanumeric(s: &str) -> Result<()> {
+    regex(&ALPHANUM, s, Error::NotAlphaNumeric(s.to_owned()))
 }
 
 /// Validates that the string contains only digits.
-pub fn numtext(s: &str, error: Error) -> Result<()> {
-    regex(&NUMTEXT, s, error)
+pub fn numtext(s: &str) -> Result<()> {
+    regex(&NUMTEXT, s, Error::NotNumeric(s.to_owned()))
 }
 
 /// Validates that the string matches the provided regex.
@@ -35,23 +38,23 @@ pub fn regex(reg: &Regex, s: &str, error: Error) -> Result<()> {
     if reg.is_match(s) {
         Ok(())
     } else {
-        Err(error)
+        Err(From::from(error))
     }
 }
 
 /// Validates that the string length is between min and max, inclusive.
-pub fn length(s: &str, min: i32, max: i32, error: Error) -> Result<()> {
+pub fn length(s: &str, min: i32, max: i32) -> Result<()> {
     let len = s.len();
     if min as usize <= len && len <= max as usize {
         Ok(())
     } else {
-        Err(error)
+        Err(From::from(Error::Length(s.to_owned(), min as usize, max as usize)))
     }
 }
 
 /// Validates that a numerical string passes the Luhn-10 test.
 pub fn luhn10(s: &str) -> Result<()> {
-    try!(numtext(s, From::from(pledge::Error::CardNotLuhn10)));
+    try!(numtext(s));
 
     // Split into reverse digit iterator
     let mut digits = s.rsplit("").filter_map(|ch| { 
@@ -79,6 +82,6 @@ pub fn luhn10(s: &str) -> Result<()> {
     if sum % 10 == 0 && !s.is_empty() {
         Ok(())
     } else {
-        Err(From::from(pledge::Error::CardNotLuhn10))
+        Err(From::from(Error::NotLuhn10(s.to_owned())))
     }
 }
