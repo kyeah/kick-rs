@@ -1,4 +1,4 @@
-//! Kickstarter data validations
+//! Kickstarter data validations.
 pub mod error;
 pub use self::error::{Error, Result};
 

@@ -1,7 +1,9 @@
 //! Module for interacting with Kickstarter pledges.
+pub use models::Pledge;
+
 use {validate, Client, Result};
 use db::{column, table};
-use models::{Pledge, Project, User};
+use models::{Project, User};
 
 use postgres::error::SqlState;
 use rustorm::database::DbError;

@@ -1,7 +1,9 @@
-//! User implementation
+//! Module for interacting with Kickstarter users.
+pub use models::User;
+
 use {Client, Result};
 use db::{column, table};
-use models::{User, Pledge};
+use models::Pledge;
 
 use rustorm::dao::{FromValue, Value};
 use rustorm::query::{Equality, Query};

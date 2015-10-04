@@ -1,7 +1,9 @@
 //! Module for interacting with Kickstarter projects.
+pub use models::Project;
+
 use {validate, Client, Result};
 use db::{column, table};
-use models::{Project, User};
+use models::User;
 
 use postgres::error::SqlState;
 use rustorm::dao::{FromValue, Value};
