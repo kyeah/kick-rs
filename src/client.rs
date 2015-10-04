@@ -38,8 +38,8 @@ impl Client {
         let pool = try!(ManagedPool::init(uri, 1));
         let db = try!(pool.connect());
         Ok(Client {
-            uri: uri.to_string(),
-            schema: schema.to_string(),
+            uri: uri.to_owned(),
+            schema: schema.to_owned(),
             db: db,
         })
     }
@@ -67,7 +67,7 @@ impl Client {
         // Retrieve and open database connection uri        
         let client = match config.get("uri") {
             Some(ref uri) => try!(Client::new(uri.as_str().unwrap(), schema)),
-            None => return Err(Error::Config(ERR_MISSING_URI.to_string())),
+            None => return Err(Error::Config(ERR_MISSING_URI.to_owned())),
         };
 
         // Bootstrap database and generated models if desired
@@ -136,11 +136,11 @@ impl Client {
     /// Syncs generated models in src/lib/gen with database tables.
     pub fn sync(&self) {
         let config = Config {
-            base_module: Some("db".to_string()),
+            base_module: Some("db".to_owned()),
             include_table_references: true,
             use_condensed_name: true,
             generate_table_meta: true,
-            base_dir: "./src".to_string(),
+            base_dir: "./src".to_owned(),
             include_views: true,
         };
 
