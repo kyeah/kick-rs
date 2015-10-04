@@ -3,9 +3,9 @@ pub mod error;
 
 pub use self::error::Error;
 
-use ::{validate, Client, Result};
-use ::db::{column, table};
-use ::models::{Project, User};
+use {validate, Client, Result};
+use db::{column, table};
+use models::{Project, User};
 
 use postgres::error::SqlState;
 

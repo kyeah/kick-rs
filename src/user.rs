@@ -1,6 +1,6 @@
 //! User implementation
-use ::{Client, Result};
-use ::models::User;
+use {Client, Result};
+use models::User;
 
 use rustorm::dao::Value;
 use rustorm::query::Query;

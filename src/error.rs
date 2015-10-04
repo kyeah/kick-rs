@@ -1,5 +1,5 @@
 //! Kickstarter errors
-use ::{pledge, project};
+use {pledge, project};
 use rustorm::database;
 use std::{error, fmt, io, result};
 

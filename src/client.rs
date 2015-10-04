@@ -1,6 +1,6 @@
 //! The high-level client library for interacting with Kickstarter.
-use ::{Error, Result};
-use ::models::{Pledge, Project, User};
+use {Error, Result};
+use models::{Pledge, Project, User};
 
 use codegenta::generator::{self, Config};
 
