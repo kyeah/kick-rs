@@ -2,7 +2,7 @@ use ::{init_test_projects, init_test_pledges,
        NAMES, USERS, CARDS, CONTRIBUTIONS, NUM_PLEDGES};
 
 use kickstarter::Error;
-use kickstarter::models::Pledge;
+use kickstarter::models::{Pledge, User};
 use kickstarter::db::table;
 
 use postgres::error::SqlState;
@@ -62,7 +62,7 @@ fn list_pledges() {
     let _ = init_test_pledges(&client);
 
     // List pledges.
-    let results = Pledge::list_for_user(&client, USERS[0]).unwrap();
+    let results = User::list_pledges(&client, USERS[0]).unwrap();
     assert_eq!(1, results.len());
     assert!(results.contains_key(NAMES[0]));
 
@@ -76,6 +76,6 @@ fn list_pledges() {
 #[test]
 fn list_pledges_none() {
     let (client, _) = init_test_projects();
-    let results = Pledge::list_for_user(&client, USERS[0]).unwrap();
+    let results = User::list_pledges(&client, USERS[0]).unwrap();
     assert!(results.is_empty());
 }

@@ -11,13 +11,15 @@
 //! use kickstarter::Client;
 
 //! fn main() {
-//!     let client = Client::with_config("postgres://user:pass@localhost:5432/kickstarter", 
-//!                                      "kickstarter").unwrap();
+//!     let client = Client::new("postgres://user:pass@localhost:5432/kickstarter", 
+//!                              "kickstarter").unwrap();
 //!
 //!     let project = client.create_project("Meditation_Witchcraft", 520.25f64).unwrap();
 //!     println!("Created project {}!", project.name);
 //!
-//!     let pledge = client.back_project("JHernandez", "Meditation_Witchcraft", 10f64).unwrap();
+//!     let pledge = client.back_project("JHernandez", "Meditation_Witchcraft", 
+//!                                      "4298708533045499", 10f64).unwrap();
+//!
 //!     println!("Backed for ${:.2}!", pledge.amount);
 //!
 //!     let (backers, goal) = client.list_backers("Meditation_Witchcraft").unwrap();
@@ -25,7 +27,7 @@
 //!         println!("{} backed for ${:.2}.", backer.name, contribution);
 //!     }
 //!     
-//!     let results = client.backed_projects("JHernandez").unwrap();
+//!     let results = client.list_backed_projects("JHernandez").unwrap();
 //!     for (project_name, pledge) in results {
 //!         println!("JHernandez backed {} for ${:.2}.", project_name, pledge.amount);
 //!     }

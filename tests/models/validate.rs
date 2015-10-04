@@ -1,28 +1,26 @@
-use kickstarter::{project, validate, Error};
-
-const ERROR: Error = Error::InvalidProject(project::Error::InvalidAmount);
+use kickstarter::validate;
 
 #[test]
+#[should_panic]
 fn currency_negative() {
-    let result = validate::currency(-0.001f64, ERROR);
-    assert!(result.is_err());
+    validate::currency(-0.001f64).unwrap();
 }
 
 #[test]
+#[should_panic]
 fn currency_zero() {
-    let result = validate::currency(0f64, ERROR);
-    assert!(result.is_err());
+    validate::currency(0f64).unwrap();
 }
 
 #[test]
 fn currency_valid_rounded() {
-    let result = validate::currency(0.114f64, ERROR).unwrap();
+    let result = validate::currency(0.114f64).unwrap();
     assert_eq!(result, 0.11f64);
 }
 
 #[test]
 fn currency_valid() {
-    let result = validate::currency(1.99f64, ERROR).unwrap();
+    let result = validate::currency(1.99f64).unwrap();
     assert_eq!(result, 1.99f64);
 }
 
@@ -36,7 +34,7 @@ fn alphanumeric_non_alphanum() {
     ];
 
     for s in &invalid {
-        let result = validate::alphanumeric(s, ERROR);
+        let result = validate::alphanumeric(s);
         assert!(result.is_err());
     }
 }
@@ -51,14 +49,14 @@ fn alphanumeric_valid_underscores_dashes() {
     ];
     
     for s in &valid {
-        let result = validate::alphanumeric(s, ERROR);
+        let result = validate::alphanumeric(s);
         assert!(result.is_ok());
     }
 }
 
 #[test]
 fn alphanumeric_valid() {
-    let result = validate::alphanumeric("helloKickstarter", ERROR);
+    let result = validate::alphanumeric("helloKickstarter");
     assert!(result.is_ok());
 }
 
@@ -74,7 +72,7 @@ fn numtext_non_numtext() {
     ];
 
     for s in &invalid {
-        let result = validate::numtext(s, ERROR);
+        let result = validate::numtext(s);
         assert!(result.is_err());
     }
 }
@@ -89,7 +87,7 @@ fn numtext_valid() {
     ];
 
     for s in &valid {
-        let result = validate::numtext(s, ERROR);
+        let result = validate::numtext(s);
         assert!(result.is_ok());
     }
 }
@@ -104,7 +102,7 @@ fn length_low() {
     ];
 
     for s in &invalid {
-        let result = validate::length(s, 6, 10, ERROR);
+        let result = validate::length(s, 6, 10);
         assert!(result.is_err());
     }
 }
@@ -118,7 +116,7 @@ fn length_high() {
     ];
 
     for s in &invalid {
-        let result = validate::length(s, 6, 10, ERROR);
+        let result = validate::length(s, 6, 10);
         assert!(result.is_err());
     }
 }
@@ -132,7 +130,7 @@ fn length_valid() {
     ];
 
     for s in &valid {
-        let result = validate::length(s, 6, 10, ERROR);
+        let result = validate::length(s, 6, 10);
         assert!(result.is_ok());
     }
 }

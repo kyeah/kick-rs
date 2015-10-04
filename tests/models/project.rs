@@ -1,7 +1,8 @@
-use ::{init_client, init_test_projects, NAMES, GOALS, NUM_PROJECTS};
+use ::{init_client, init_test_projects, init_test_pledges, 
+       NAMES, GOALS, USERS, CONTRIBUTIONS, NUM_PROJECTS};
 
-use kickstarter::{project, Error};
-use kickstarter::models::{Pledge, Project};
+use kickstarter::{validate, Error};
+use kickstarter::models::Project;
 use kickstarter::db::table;
 
 use postgres::error::SqlState;
@@ -60,7 +61,7 @@ fn get_id_missing() {
     let result = Project::get_id(&client, "I_DONT_EXIST");
 
     match result {
-        Err(Error::InvalidProject(project::Error::ProjectDoesNotExist)) => (),
+        Err(Error::InvalidData(validate::Error::ProjectDoesNotExist)) => (),
         _ => panic!(result),
     }
 }
@@ -87,23 +88,15 @@ fn list_none() {
 #[test]
 fn list_backers() {
     let (client, _) = init_test_projects();
-
-    // Create pledges.
-    let users         = vec!["Johnnyboy", "Margie"];
-    let contributions = vec![100f64, 200f64];
-    let cards         = vec!["351149395124027", "6011168468345649"];
-    
-    for i in (0..2) {
-        Pledge::create(&client, users[i], NAMES[0], cards[i], contributions[i]).unwrap();
-    }
+    let _ = init_test_pledges(&client);
 
     // List backers.
     let (backers, goal) = Project::list_backers(&client, NAMES[0]).unwrap();
     assert_eq!(GOALS[0], goal);
     
     for (backer, contribution) in backers {
-        let index = users.iter().position(|&name| name == backer.name).unwrap();
-        assert_eq!(contributions[index], contribution);
+        let index = USERS.iter().position(|&name| name == backer.name).unwrap();
+        assert_eq!(CONTRIBUTIONS[index], contribution);
     }
 }
 
@@ -121,7 +114,7 @@ fn list_backers_missing() {
     let result = Project::list_backers(&client, "PSYCHE");
     
     match result {
-        Err(Error::InvalidProject(project::Error::ProjectDoesNotExist)) => (),
+        Err(Error::InvalidData(validate::Error::ProjectDoesNotExist)) => (),
         _ => panic!(result),
     }
 }
