@@ -23,7 +23,7 @@ impl User {
     }
 
     /// Retrieve a map of all pledges that a user has made to Kickstarter projects.
-    /// Returns a map of project names to Pledge objects.
+    /// Returns a map of projects to Pledge objects.
     pub fn list_pledges(client: &Client, user: &str) -> Result<BTreeMap<Project, Pledge>> {
 
         // Get all pledges, along with the project name.

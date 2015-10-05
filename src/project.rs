@@ -84,7 +84,7 @@ impl Project {
     }
 
     /// Retrieves a list of all users that have backed a given project.
-    /// Returns a map of User objects to their contributions,
+    /// Returns a map of User objects to their pledge contributions,
     /// as well as the overall project goal amount.
     pub fn list_backers(client: &Client, project_name: &str) -> Result<(BTreeMap<User, Pledge>, f64)> {
         let dao_results = try!(Query::select()
