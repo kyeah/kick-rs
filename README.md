@@ -42,18 +42,19 @@ Commands:
 
 Here are a few examples of usage:
 ```
-project Sensel_Control_Pad 250000.00
-  $ Added Sensel_Control_Pad project with target of $250,000.00
+> project Sensel_Control_Pad 250000.00
+Added project 'Sensel_Control_Pad' with a target goal of $250,000.00.
 
-back Jorge Sensel_Control_Pad 123456789012 300
-  $ Jorge backed project Sensel_Control_Pad for $300.00
+> back Sally Sensel_Control_Pad 4773718568425957 300
+Sally backed project 'Sensel_Control_Pad' for $300.00.
 
-list Sensel_Control_Pad
-  $ -- Jorge backed for $300.00
-  $ Sensel_Control_Pad needs $249,700.00 more dollars to be successful
+> list Sensel_Control_Pad
+-- Sally backed for $300.00
+Sensel_Control_Pad needs $249,700.00 more dollars to be successful!
 
-backer Jorge
-  $ Jorge backed project Sensel_Control_Pad for $300.00
+> backer Sally
+Sally backed project 'Sensel_Control_Pad' for $300.00
+Sally has given $300.00 back to their community. Thanks Sally!
 ```
 
 ### As a Library

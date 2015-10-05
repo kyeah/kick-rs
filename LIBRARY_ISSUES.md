@@ -20,3 +20,4 @@ Over the course of building this tool, I ran into a number of bugs and missing f
 
 ## Rust-lang
 * The Rust language has severe floating point parse inaccuracies that are fixed in v1.4, coming out in a few weeks. This drove me crazy, since values like 0.12 would be parsed as .120000000001. As a result, you may notice some funny accuracy issues with pledge amounts and goal markers.
+* Missing support for number formatting with commas. Quite silly.

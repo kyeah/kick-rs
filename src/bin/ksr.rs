@@ -7,8 +7,6 @@ use kickstarter::{Client, Result, Error};
 use std::fs::File;
 use std::io::{self, BufRead, Read, Write};
 
-const SEPARATOR: &'static str = "=======================================";
-
 const USAGE: &'static str = "
 The Real Kickstarter.
 
@@ -113,10 +111,10 @@ fn main() {
     let client = match Client::with_config(&args.flag_config, args.flag_build, true) {
         Ok(client) => client,
         Err(ref e) => {
-            println!("ERROR: {} \n{}\n\
+            println!("ERROR: {} \n\n\
                       Could not connect to the database. \n\
                       Make sure that `{}` exists and is pointing to an existing database.",
-                     e, SEPARATOR, &args.flag_config);
+                     e, &args.flag_config);
             return;
         }
     };
@@ -170,9 +168,7 @@ fn prompt(client: Client, docopt: Docopt) {
         let args = read_args(docopt.clone(), &line.unwrap());
         handle_args(&client, args);
 
-        println!("{}", SEPARATOR);
-
-        print!("> ");
+        print!("\n> ");
         try_return!(io::stdout().flush());
     }
 }
@@ -199,7 +195,7 @@ fn run_file(client: Client, docopt: Docopt, filename: &str) {
     for (cmd, args) in run_list {
         println!("> {}", cmd);
         handle_args(&client, args);
-        println!("{}", SEPARATOR);
+        println!("");
     }
 }
 
