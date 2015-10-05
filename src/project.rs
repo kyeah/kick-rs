@@ -7,11 +7,10 @@ use models::{Pledge, User};
 
 use postgres::error::SqlState;
 use rustorm::dao::{FromValue, Value};
-use rustorm::database::{Database, DbError};
+use rustorm::database::DbError;
 use rustorm::query::{Equality, Query};
 
 use std::cmp::Ordering;
-use std::collections::BTreeMap;
 use std::convert::From;
 
 impl Project {
@@ -83,11 +82,10 @@ impl Project {
         Ok(results)
     }
 
-    /// Retrieves a list of all users that have backed a given project.
-    /// Returns a map of User objects to their pledge contributions,
-    /// as well as the overall project goal amount.
-    pub fn list_backers(client: &Client, project_name: &str) -> Result<(BTreeMap<User, Pledge>, f64)> {
-        let dao_results = try!(Query::select()
+    /// Retrieves a list of all pledges for a given project. Returns a list of 
+    /// all pledges with user information, as well as the overall project goal amount.
+    pub fn list_pledges(client: &Client, project_name: &str) -> Result<(Vec<Pledge>, f64)> {
+        let mut dao_results = try!(Query::select()
             .column(&"us.*")
             .column(&"pl.*")
             .column(&"pr.goal")
@@ -103,19 +101,19 @@ impl Project {
 
         let goal = dao_results.dao[0].get_value(column::goal);        
 
-        // Map project names to the pledge data
-        let mut results: BTreeMap<User, Pledge> = BTreeMap::new();
+        dao_results.dao.retain(|dao| {
+            dao.get_value(column::amount) != Value::Null
+        });
+
+        // Map users to pledges
         let mut users: Vec<User> = dao_results.cast();
         let mut pledges: Vec<Pledge> = dao_results.cast();
 
-        for dao in dao_results.dao.iter().rev() {
-            let val = dao.get_value(column::amount);
-            if val != Value::Null {
-                results.insert(users.pop().unwrap(), pledges.pop().unwrap());
-            }
+        for i in (0..pledges.len()).rev() {
+            pledges[i].user = Some(users.pop().unwrap());
         }
 
-        Ok((results, FromValue::from_type(goal)))
+        Ok((pledges, FromValue::from_type(goal)))
     }
 }
 

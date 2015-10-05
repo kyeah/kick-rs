@@ -261,13 +261,14 @@ fn cmd_back(client: &Client, args: Args) {
 /// List all backers for an existing project.
 fn cmd_list(client: &Client, args: Args) {
     let name    = args.arg_name.unwrap();
-    let (results, goal) = try_return!(client.list_backers(&name));
+    let (pledges, goal) = try_return!(client.list_backers(&name));
 
-    if results.is_empty() {
+    if pledges.is_empty() {
         println!("{} doesn't have any backers yet. Maybe you'd like to help it get off the ground?", name);
     } else {
         let mut total = 0f64;
-        for (user, pledge) in &results {
+        for pledge in &pledges {
+            let user = pledge.get_user();
             println!("-- {} backed for ${:.2}", user.name, pledge.amount);
             total += pledge.amount;
         }
@@ -283,13 +284,14 @@ fn cmd_list(client: &Client, args: Args) {
 /// List all projects that have been backed by a user.
 fn cmd_backer(client: &Client, args: Args) {
     let user    = args.arg_user.unwrap();
-    let results = try_return!(client.list_backed_projects(&user));
+    let pledges = try_return!(client.list_backed_projects(&user));
 
-    if results.is_empty() {
+    if pledges.is_empty() {
         println!("{} hasn't backed any projects...yet. Get to it!", user);
     } else {
         let mut total = 0f64;
-        for (project, pledge) in &results {
+        for pledge in &pledges {
+            let project = pledge.get_project();
             println!("{} backed project '{}' for ${:.2}", user, project.name, pledge.amount);
             total += pledge.amount;
         }

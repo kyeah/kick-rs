@@ -8,7 +8,6 @@ use models::{Pledge, Project};
 use rustorm::dao::Value;
 use rustorm::query::{Equality, Query};
 use std::cmp::Ordering;
-use std::collections::BTreeMap;
 
 impl User {
     /// Upserts a user and returns the resultant ID as a Value.
@@ -24,7 +23,7 @@ impl User {
 
     /// Retrieve a map of all pledges that a user has made to Kickstarter projects.
     /// Returns a map of projects to Pledge objects.
-    pub fn list_pledges(client: &Client, user: &str) -> Result<BTreeMap<Project, Pledge>> {
+    pub fn list_pledges(client: &Client, user: &str) -> Result<Vec<Pledge>> {
 
         // Get all pledges, along with the project name.
         // Rust maps don't have ordered insertion support, so don't bother ordering by date_created.
@@ -37,18 +36,17 @@ impl User {
             .filter(&"us.name", Equality::EQ, &user)
             .retrieve(client.db()));
 
-        // Map project names to the pledge data
-        let mut results: BTreeMap<Project, Pledge> = BTreeMap::new();
+        // Map projects to pledges.
         let mut projects: Vec<Project> = dao_results.cast();
         let mut pledges: Vec<Pledge> = dao_results.cast();
 
-        for _ in (0..projects.len()) {
-            results.insert(projects.pop().unwrap(), pledges.pop().unwrap());
+        for i in (0..pledges.len()).rev() {
+            pledges[i].project = Some(projects.pop().unwrap());
         }
 
-        Ok(results)
+        Ok(pledges)
     }
-}
+}    
 
 impl Ord for User {
     fn cmp(&self, other: &Self) -> Ordering {

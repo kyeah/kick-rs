@@ -22,13 +22,15 @@
 //!
 //!     println!("Backed for ${:.2}!", pledge.amount);
 //!
-//!     let (backers, goal) = client.list_backers("Meditation_Witchcraft").unwrap();
-//!     for (backer, pledge) in backers {
+//!     let (pledges, goal) = client.list_backers("Meditation_Witchcraft").unwrap();
+//!     for pledge in &pledges {
+//!         let backer = pledge.get_user();
 //!         println!("{} backed for ${:.2}.", backer.name, pledge.amount);
 //!     }
 //!     
-//!     let results = client.list_backed_projects("JHernandez").unwrap();
-//!     for (project, pledge) in results {
+//!     let pledges = client.list_backed_projects("JHernandez").unwrap();
+//!     for pledge in &pledges {
+//!         let project = pledge.get_project();
 //!         println!("JHernandez backed {} for ${:.2}.", project.name, pledge.amount);
 //!     }
 //!

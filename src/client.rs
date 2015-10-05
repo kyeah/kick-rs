@@ -6,7 +6,6 @@ use codegenta::generator::{self, Config};
 use rustorm::database::Database;
 use rustorm::pool::{ManagedPool, Platform};
 
-use std::collections::BTreeMap;
 use std::fs::File;
 use std::io::Read;
 use toml;
@@ -158,10 +157,10 @@ impl Client {
         Pledge::create(&self, user, project_name, card, amount)
     }
 
-    /// Returns a map of all backers and their contributions 
-    /// towards a project, along with the project's goal amount.
-    pub fn list_backers(&self, project_name: &str) -> Result<(BTreeMap<User, Pledge>, f64)> {
-        Project::list_backers(&self, project_name)
+    /// Returns a a list of all pledges (and users) towards a project,
+    /// along with the project's goal amount.
+    pub fn list_backers(&self, project_name: &str) -> Result<(Vec<Pledge>, f64)> {
+        Project::list_pledges(&self, project_name)
     }
 
     /// Returns a list of all projects on Kickstarter.
@@ -169,8 +168,8 @@ impl Client {
         Project::list_all(&self)
     }
 
-    /// Returns a map of all Kickstarter projects backed by a user, along with the pledge information.
-    pub fn list_backed_projects(&self, user: &str) -> Result<BTreeMap<Project, Pledge>> {
+    /// Returns a list of all pledges (and projects) made by a user.
+    pub fn list_backed_projects(&self, user: &str) -> Result<Vec<Pledge>> {
         User::list_pledges(&self, user)
     }
 }

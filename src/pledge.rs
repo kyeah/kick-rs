@@ -13,6 +13,16 @@ use std::error::Error as ErrorTrait;
 
 impl Pledge {
 
+    /// Returns a reference to the user that made the pledge.
+    pub fn get_user(&self) -> &User {
+        self.user.as_ref().unwrap()
+    }
+    
+    /// Returns a reference to the project that the pledge is for.
+    pub fn get_project(&self) -> &Project {
+        self.project.as_ref().unwrap()
+    }
+
     /// Creates a new pledge for an existing project.
     pub fn create(client: &Client, user: &str, project_name: &str, card: &str, amount: f64) -> Result<Pledge> {
 

@@ -86,32 +86,33 @@ fn list_none() {
 }
 
 #[test]
-fn list_backers() {
+fn list_pledges() {
     let (client, _) = init_test_projects();
     let _ = init_test_pledges(&client);
 
     // List backers.
-    let (backers, goal) = Project::list_backers(&client, NAMES[0]).unwrap();
+    let (pledges, goal) = Project::list_pledges(&client, NAMES[0]).unwrap();
     assert_eq!(GOALS[0], goal);
     
-    for (backer, pledge) in backers {
+    for pledge in pledges {
+        let backer = pledge.get_user();
         let index = USERS.iter().position(|&name| name == backer.name).unwrap();
         assert_eq!(CONTRIBUTIONS[index], pledge.amount);
     }
 }
 
 #[test]
-fn list_backers_none() {
+fn list_pledges_none() {
     let (client, _) = init_test_projects();
-    let (backers, goal) = Project::list_backers(&client, NAMES[0]).unwrap();
+    let (pledges, goal) = Project::list_pledges(&client, NAMES[0]).unwrap();
     assert_eq!(GOALS[0], goal);
-    assert!(backers.is_empty());
+    assert!(pledges.is_empty());
 }
 
 #[test]
-fn list_backers_missing() {
+fn list_pledges_missing() {
     let client = init_client();
-    let result = Project::list_backers(&client, "PSYCHE");
+    let result = Project::list_pledges(&client, "PSYCHE");
     
     match result {
         Err(Error::InvalidData(validate::Error::ProjectDoesNotExist)) => (),

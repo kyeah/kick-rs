@@ -44,10 +44,11 @@ fn list_pledges() {
     let _ = init_test_pledges(&client);
 
     // List pledges.
-    let results = User::list_pledges(&client, USERS[0]).unwrap();
-    assert_eq!(1, results.len());
+    let pledges = User::list_pledges(&client, USERS[0]).unwrap();
+    assert_eq!(1, pledges.len());
 
-    let (project, pledge) = results.iter().next().unwrap();
+    let ref pledge = pledges[0];
+    let project = pledge.get_project();
     assert_eq!(project.name, NAMES[0]);
     assert_eq!(CARDS[0], pledge.card);
     assert_eq!(CONTRIBUTIONS[0], pledge.amount);
@@ -58,6 +59,6 @@ fn list_pledges() {
 #[test]
 fn list_pledges_none() {
     let (client, _) = init_test_projects();
-    let results = User::list_pledges(&client, USERS[0]).unwrap();
-    assert!(results.is_empty());
+    let pledges = User::list_pledges(&client, USERS[0]).unwrap();
+    assert!(pledges.is_empty());
 }
