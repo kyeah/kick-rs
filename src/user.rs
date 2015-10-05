@@ -25,8 +25,7 @@ impl User {
     /// Returns a map of projects to Pledge objects.
     pub fn list_pledges(client: &Client, user: &str) -> Result<Vec<Pledge>> {
 
-        // Get all pledges, along with the project name.
-        // Rust maps don't have ordered insertion support, so don't bother ordering by date_created.
+        // Get all pledges and associated projects.
         let dao_results = try!(Query::select()
             .column(&"pl.*")
             .column(&"pr.*")
