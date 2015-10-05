@@ -160,7 +160,7 @@ impl Client {
 
     /// Returns a map of all backers and their contributions 
     /// towards a project, along with the project's goal amount.
-    pub fn list_backers(&self, project_name: &str) -> Result<(BTreeMap<User, f64>, f64)> {
+    pub fn list_backers(&self, project_name: &str) -> Result<(BTreeMap<User, Pledge>, f64)> {
         Project::list_backers(&self, project_name)
     }
 
@@ -170,7 +170,7 @@ impl Client {
     }
 
     /// Returns a map of all Kickstarter projects backed by a user, along with the pledge information.
-    pub fn list_backed_projects(&self, user: &str) -> Result<BTreeMap<String, Pledge>> {
+    pub fn list_backed_projects(&self, user: &str) -> Result<BTreeMap<Project, Pledge>> {
         User::list_pledges(&self, user)
     }
 }

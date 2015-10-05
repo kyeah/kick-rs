@@ -94,9 +94,9 @@ fn list_backers() {
     let (backers, goal) = Project::list_backers(&client, NAMES[0]).unwrap();
     assert_eq!(GOALS[0], goal);
     
-    for (backer, contribution) in backers {
+    for (backer, pledge) in backers {
         let index = USERS.iter().position(|&name| name == backer.name).unwrap();
-        assert_eq!(CONTRIBUTIONS[index], contribution);
+        assert_eq!(CONTRIBUTIONS[index], pledge.amount);
     }
 }
 

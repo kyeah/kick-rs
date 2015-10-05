@@ -306,7 +306,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "rustorm"
 version = "0.1.3"
-source = "git+https://github.com/kyeah/rustorm?branch=bug-fixes#45e3beef0ce6ab69cf1f7672ca9620a211f6270f"
+source = "git+https://github.com/kyeah/rustorm?branch=bug-fixes#5add91735c1a1d99b2782535afe00d9ef698394f"
 dependencies = [
  "chrono 0.2.16 (registry+https://github.com/rust-lang/crates.io-index)",
  "env_logger 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",

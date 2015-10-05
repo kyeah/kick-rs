@@ -9,7 +9,7 @@
 //! ```no_run
 //! extern crate kickstarter;
 //! use kickstarter::Client;
-
+//!
 //! fn main() {
 //!     let client = Client::new("postgres://user:pass@localhost:5432/kickstarter", 
 //!                              "kickstarter").unwrap();
@@ -23,13 +23,13 @@
 //!     println!("Backed for ${:.2}!", pledge.amount);
 //!
 //!     let (backers, goal) = client.list_backers("Meditation_Witchcraft").unwrap();
-//!     for (backer, contribution) in backers {
-//!         println!("{} backed for ${:.2}.", backer.name, contribution);
+//!     for (backer, pledge) in backers {
+//!         println!("{} backed for ${:.2}.", backer.name, pledge.amount);
 //!     }
 //!     
 //!     let results = client.list_backed_projects("JHernandez").unwrap();
-//!     for (project_name, pledge) in results {
-//!         println!("JHernandez backed {} for ${:.2}.", project_name, pledge.amount);
+//!     for (project, pledge) in results {
+//!         println!("JHernandez backed {} for ${:.2}.", project.name, pledge.amount);
 //!     }
 //!
 //!     let all_projects = client.list_projects().unwrap();

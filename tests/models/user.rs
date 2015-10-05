@@ -46,9 +46,9 @@ fn list_pledges() {
     // List pledges.
     let results = User::list_pledges(&client, USERS[0]).unwrap();
     assert_eq!(1, results.len());
-    assert!(results.contains_key(NAMES[0]));
 
-    let ref pledge = results[NAMES[0]];
+    let (project, pledge) = results.iter().next().unwrap();
+    assert_eq!(project.name, NAMES[0]);
     assert_eq!(CARDS[0], pledge.card);
     assert_eq!(CONTRIBUTIONS[0], pledge.amount);
     assert_eq!(1, pledge.user_id);

@@ -110,7 +110,13 @@ fn main() {
     }
 
     // Connect to the database.
-    let client = try_return!(Client::with_config(&args.flag_config, args.flag_build, true));
+    let client = Client::with_config(&args.flag_config, args.flag_build, true)
+        .unwrap_or_else(|e| {
+            panic!("ERROR: {} \n\
+                    Could not connect to the database. \
+                    Make sure that `{}` exists and is pointing to an existing database.",
+                   e, &args.flag_config);
+        });
 
     // Wipe the database and sync it with the configuration file, then generate the associated models.
     if args.flag_sync {
@@ -258,9 +264,9 @@ fn cmd_list(client: &Client, args: Args) {
         println!("{} doesn't have any backers yet. Maybe you'd like to help it get off the ground?", name);
     } else {
         let mut total = 0f64;
-        for (user, &amount) in &results {
-            println!("-- {} backed for ${:.2}", user.name, amount);
-            total += amount;
+        for (user, pledge) in &results {
+            println!("-- {} backed for ${:.2}", user.name, pledge.amount);
+            total += pledge.amount;
         }
 
         if total < goal {
@@ -281,7 +287,7 @@ fn cmd_backer(client: &Client, args: Args) {
     } else {
         let mut total = 0f64;
         for (project, pledge) in &results {
-            println!("{} backed project '{}' for ${:.2}", user, project, pledge.amount);
+            println!("{} backed project '{}' for ${:.2}", user, project.name, pledge.amount);
             total += pledge.amount;
         }
         println!("{} has given ${:.2} back to their community. Thanks {}!", user, total, user);

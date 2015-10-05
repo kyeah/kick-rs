@@ -3,13 +3,14 @@ pub use models::Project;
 
 use {validate, Client, Result};
 use db::{column, table};
-use models::User;
+use models::{Pledge, User};
 
 use postgres::error::SqlState;
 use rustorm::dao::{FromValue, Value};
 use rustorm::database::{Database, DbError};
 use rustorm::query::{Equality, Query};
 
+use std::cmp::Ordering;
 use std::collections::BTreeMap;
 use std::convert::From;
 
@@ -85,10 +86,10 @@ impl Project {
     /// Retrieves a list of all users that have backed a given project.
     /// Returns a map of User objects to their contributions,
     /// as well as the overall project goal amount.
-    pub fn list_backers(client: &Client, project_name: &str) -> Result<(BTreeMap<User, f64>, f64)> {
+    pub fn list_backers(client: &Client, project_name: &str) -> Result<(BTreeMap<User, Pledge>, f64)> {
         let dao_results = try!(Query::select()
             .column(&"us.*")
-            .column(&"pl.amount")
+            .column(&"pl.*")
             .column(&"pr.goal")
             .from_table(&client.table_abbr(table::project))
             .left_join_table(&client.table_abbr(table::pledge), &"pl.project_id", &"pr.project_id")
@@ -103,17 +104,37 @@ impl Project {
         let goal = dao_results.dao[0].get_value(column::goal);        
 
         // Map project names to the pledge data
-        let mut results: BTreeMap<User, f64> = BTreeMap::new();
+        let mut results: BTreeMap<User, Pledge> = BTreeMap::new();
         let mut users: Vec<User> = dao_results.cast();
+        let mut pledges: Vec<Pledge> = dao_results.cast();
 
         for dao in dao_results.dao.iter().rev() {
             let val = dao.get_value(column::amount);
             if val != Value::Null {
-                let amount = FromValue::from_type(val);
-                results.insert(users.pop().unwrap(), amount);
+                results.insert(users.pop().unwrap(), pledges.pop().unwrap());
             }
         }
 
         Ok((results, FromValue::from_type(goal)))
     }
 }
+
+impl Ord for Project {
+    fn cmp(&self, other: &Self) -> Ordering {
+        (self.project_id, &self.name).cmp(&(other.project_id, &other.name))
+    }
+}
+
+impl PartialOrd for Project {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl PartialEq for Project {
+    fn eq(&self, other: &Self) -> bool {
+        (self.project_id, &self.name) == (other.project_id, &other.name)
+    }
+}
+
+impl Eq for Project { }
