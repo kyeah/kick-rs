@@ -1,5 +1,5 @@
 # Application configuration file
 # ===============================
 
-uri = "postgres://user:pass@localhost:5432/kickstarter"
+uri = "postgres://postgres@localhost:5432/kickstarter"
 sql_config = "data/tables.sql"
