@@ -57,6 +57,7 @@
 <pre class='rust rust-example-rendered'>
 <span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>kickstarter</span>;
 <span class='kw'>use</span> <span class='ident'>kickstarter</span>::<span class='ident'>Client</span>;
+
 <span class='kw'>fn</span> <span class='ident'>main</span>() {
     <span class='kw'>let</span> <span class='ident'>client</span> <span class='op'>=</span> <span class='ident'>Client</span>::<span class='ident'>new</span>(<span class='string'>&quot;postgres://user:pass@localhost:5432/kickstarter&quot;</span>, 
                              <span class='string'>&quot;kickstarter&quot;</span>).<span class='ident'>unwrap</span>();
@@ -70,13 +71,13 @@
     <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Backed for ${:.2}!&quot;</span>, <span class='ident'>pledge</span>.<span class='ident'>amount</span>);
 
     <span class='kw'>let</span> (<span class='ident'>backers</span>, <span class='ident'>goal</span>) <span class='op'>=</span> <span class='ident'>client</span>.<span class='ident'>list_backers</span>(<span class='string'>&quot;Meditation_Witchcraft&quot;</span>).<span class='ident'>unwrap</span>();
-    <span class='kw'>for</span> (<span class='ident'>backer</span>, <span class='ident'>contribution</span>) <span class='kw'>in</span> <span class='ident'>backers</span> {
-        <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;{} backed for ${:.2}.&quot;</span>, <span class='ident'>backer</span>.<span class='ident'>name</span>, <span class='ident'>contribution</span>);
+    <span class='kw'>for</span> (<span class='ident'>backer</span>, <span class='ident'>pledge</span>) <span class='kw'>in</span> <span class='ident'>backers</span> {
+        <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;{} backed for ${:.2}.&quot;</span>, <span class='ident'>backer</span>.<span class='ident'>name</span>, <span class='ident'>pledge</span>.<span class='ident'>amount</span>);
     }
      
     <span class='kw'>let</span> <span class='ident'>results</span> <span class='op'>=</span> <span class='ident'>client</span>.<span class='ident'>list_backed_projects</span>(<span class='string'>&quot;JHernandez&quot;</span>).<span class='ident'>unwrap</span>();
-    <span class='kw'>for</span> (<span class='ident'>project_name</span>, <span class='ident'>pledge</span>) <span class='kw'>in</span> <span class='ident'>results</span> {
-        <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;JHernandez backed {} for ${:.2}.&quot;</span>, <span class='ident'>project_name</span>, <span class='ident'>pledge</span>.<span class='ident'>amount</span>);
+    <span class='kw'>for</span> (<span class='ident'>project</span>, <span class='ident'>pledge</span>) <span class='kw'>in</span> <span class='ident'>results</span> {
+        <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;JHernandez backed {} for ${:.2}.&quot;</span>, <span class='ident'>project</span>.<span class='ident'>name</span>, <span class='ident'>pledge</span>.<span class='ident'>amount</span>);
     }
 
     <span class='kw'>let</span> <span class='ident'>all_projects</span> <span class='op'>=</span> <span class='ident'>client</span>.<span class='ident'>list_projects</span>().<span class='ident'>unwrap</span>();
