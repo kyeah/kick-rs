@@ -71,11 +71,15 @@ git = "https://github.com/kyeah/kick-rs"
 
 To build this project, you will need [Rust 1.0+](https://www.rust-lang.org) and its package manager, Cargo. The easiest way to get the current stable release of Rust and Cargo is using `rustup`:
 
-`curl -sSf https://static.rust-lang.org/rustup.sh | sh`
+```
+$ curl -sSf https://static.rust-lang.org/rustup.sh | sh
+```
 
 This project also uses PostgreSQL for persistent storage. Before running ksr, ensure that you have PostgreSQL setup and running. 
 
-`sudo apt-get install postgresql postgresql-contrib`
+```
+$ sudo apt-get install postgresql postgresql-contrib
+```
 
 You can [follow this guide](https://help.ubuntu.com/lts/serverguide/postgresql.html) to set up your service and user permissions.
 
@@ -83,24 +87,42 @@ You can [follow this guide](https://help.ubuntu.com/lts/serverguide/postgresql.h
 
 Thanks to Cargo, building Rust packages is really easy! 
 
-`cargo build [--release]`
+```
+$ cargo build [--release]
+```
 
 The `ksr` binary executable will be built under `target/debug` or `target/release`.
 
 ### Database Setup
 
-To create the database, run `createdb <db_name>`. The default name is `kickstarter`. 
+```
+$ createdb <db_name> (default: kickstarter)
+$ cp data/sample-config.toml data/config.toml
+```
 
-Then, configure the application to connect to your database by renaming `data/sample-config.toml` to `data/config.toml` and changing the connection string.
+You'll need to change the connection string in `config.toml` to point to your database.
 
-`postgres://<user>:<pass>@<ip>:<port>/kickstarter`
+```toml
+uri = "postgres://<user>:<pass>@<ip>:<port>/kickstarter"
+```
 
-The default IP and port is localhost:5432.
+Then build or rebuild the schema.
 
-You can build or rebuild the schema at any time by running `ksr --build`. This will bootstrap the database and regenerate the models in [src/db](src/db). Pretty cool!
+```
+$ ksr --build
+```
+
+This will bootstrap the database and regenerate the models in [src/db](src/db). Pretty cool!
 
 ### Testing
 
 The integration tests rely on a live test database defined in [tests/data](tests/data). Make sure that the provided database exists and that the Rust tests are running on a single-thread before executing `cargo test`.
 
-`export RUST_TEST_THREADS=1`.
+```
+$ createdb ksr-test
+$ cp tests/data/sample-config.toml tests/data/config.toml
+$ export RUST_TEST_THREADS=1
+$ cargo test
+```
+
+Don't forget to modify `config.toml` to provide database credentials!
