@@ -3,6 +3,8 @@ The Real Kickstarter
 
 A mini-Kickstarter application and CLI playground for identifying issues in current Rust ORMs and command-line parsers. Also James told me to make this. Hi James!
 
+[See documentation for a high-level library overview.](https://kyeah.github.io/kick-rs/kickstarter)
+
 ## Usage
 
 ### Command-line Interface
