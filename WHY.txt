@@ -1,4 +1,0 @@
-Vote table: Faster to insert rows at the end of a table instead of updating, no chance of concurrency issues
-Using int IDs instead of text: Doesn't slow down indexing on insert
-
-All constraints except Luhn-10 encoded in db to ensure validity
