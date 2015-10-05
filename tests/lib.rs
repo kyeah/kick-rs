@@ -26,7 +26,12 @@ static CARDS: &'static [&'static str] = &["341468752760899",
 static CONTRIBUTIONS: &'static [f64] = &[100f64, 200f64, 3000f64];
 
 pub fn init_client() -> Client {
-    Client::with_config(DEFAULT_CONFIG, true, false).unwrap()
+    Client::with_config(DEFAULT_CONFIG, true, false).unwrap_or_else(|e| {
+        panic!("ERROR: {}\n\
+                Could not connect to the test database. \
+                Make sure that '{}' exists and is pointing to an existing database.", 
+               e, DEFAULT_CONFIG);
+    })
 }
 
 // Returns the client and a list of created projects.
