@@ -45,7 +45,7 @@
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-0' class='srclink' href='../src/kickstarter/lib.rs.html#1-64' title='goto source code'>[src]</a></span></h1>
+        </span><a id='src-0' class='srclink' href='../src/kickstarter/lib.rs.html#1-66' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'>
 <h1 id="the-real-kickstarter" class='section-header'><a
                            href="#the-real-kickstarter">The Real Kickstarter</a></h1>
@@ -70,13 +70,15 @@
 
     <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Backed for ${:.2}!&quot;</span>, <span class='ident'>pledge</span>.<span class='ident'>amount</span>);
 
-    <span class='kw'>let</span> (<span class='ident'>backers</span>, <span class='ident'>goal</span>) <span class='op'>=</span> <span class='ident'>client</span>.<span class='ident'>list_backers</span>(<span class='string'>&quot;Meditation_Witchcraft&quot;</span>).<span class='ident'>unwrap</span>();
-    <span class='kw'>for</span> (<span class='ident'>backer</span>, <span class='ident'>pledge</span>) <span class='kw'>in</span> <span class='ident'>backers</span> {
+    <span class='kw'>let</span> (<span class='ident'>pledges</span>, <span class='ident'>goal</span>) <span class='op'>=</span> <span class='ident'>client</span>.<span class='ident'>list_backers</span>(<span class='string'>&quot;Meditation_Witchcraft&quot;</span>).<span class='ident'>unwrap</span>();
+    <span class='kw'>for</span> <span class='ident'>pledge</span> <span class='kw'>in</span> <span class='kw-2'>&amp;</span><span class='ident'>pledges</span> {
+        <span class='kw'>let</span> <span class='ident'>backer</span> <span class='op'>=</span> <span class='ident'>pledge</span>.<span class='ident'>get_user</span>();
         <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;{} backed for ${:.2}.&quot;</span>, <span class='ident'>backer</span>.<span class='ident'>name</span>, <span class='ident'>pledge</span>.<span class='ident'>amount</span>);
     }
      
-    <span class='kw'>let</span> <span class='ident'>results</span> <span class='op'>=</span> <span class='ident'>client</span>.<span class='ident'>list_backed_projects</span>(<span class='string'>&quot;JHernandez&quot;</span>).<span class='ident'>unwrap</span>();
-    <span class='kw'>for</span> (<span class='ident'>project</span>, <span class='ident'>pledge</span>) <span class='kw'>in</span> <span class='ident'>results</span> {
+    <span class='kw'>let</span> <span class='ident'>pledges</span> <span class='op'>=</span> <span class='ident'>client</span>.<span class='ident'>list_backed_projects</span>(<span class='string'>&quot;JHernandez&quot;</span>).<span class='ident'>unwrap</span>();
+    <span class='kw'>for</span> <span class='ident'>pledge</span> <span class='kw'>in</span> <span class='kw-2'>&amp;</span><span class='ident'>pledges</span> {
+        <span class='kw'>let</span> <span class='ident'>project</span> <span class='op'>=</span> <span class='ident'>pledge</span>.<span class='ident'>get_project</span>();
         <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;JHernandez backed {} for ${:.2}.&quot;</span>, <span class='ident'>project</span>.<span class='ident'>name</span>, <span class='ident'>pledge</span>.<span class='ident'>amount</span>);
     }
 
