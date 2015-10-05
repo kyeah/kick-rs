@@ -89,6 +89,7 @@ You can [follow this guide](https://help.ubuntu.com/lts/serverguide/postgresql.h
 Thanks to Cargo, building Rust packages is really easy! 
 
 ```sh
+$ git clone https://github.com/kyeah/kick-rs && cd kick-rs
 $ cargo build [--release]
 ```
 
