@@ -110,13 +110,16 @@ fn main() {
     }
 
     // Connect to the database.
-    let client = Client::with_config(&args.flag_config, args.flag_build, true)
-        .unwrap_or_else(|e| {
-            panic!("ERROR: {} \n\
-                    Could not connect to the database. \
-                    Make sure that `{}` exists and is pointing to an existing database.",
-                   e, &args.flag_config);
-        });
+    let client = match Client::with_config(&args.flag_config, args.flag_build, true) {
+        Ok(client) => client,
+        Err(ref e) => {
+            println!("ERROR: {} \n{}\n\
+                      Could not connect to the database. \n\
+                      Make sure that `{}` exists and is pointing to an existing database.",
+                     e, SEPARATOR, &args.flag_config);
+            return;
+        }
+    };
 
     // Wipe the database and sync it with the configuration file, then generate the associated models.
     if args.flag_sync {
