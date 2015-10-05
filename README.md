@@ -5,6 +5,23 @@ A mini-Kickstarter application and CLI playground for identifying issues in curr
 
 [See documentation for a high-level library overview.](https://kyeah.github.io/kick-rs/kickstarter)
 
+```c
+$ ksr run
+> project Sensel_Control_Pad 250000.00
+Added project 'Sensel_Control_Pad' with a target goal of $250,000.00.
+
+> back Sally Sensel_Control_Pad 4773718568425957 300
+Sally backed project 'Sensel_Control_Pad' for $300.00.
+
+> list Sensel_Control_Pad
+-- Sally backed for $300.00
+Sensel_Control_Pad needs $249,700.00 more dollars to be successful!
+
+> backer Sally
+Sally backed project 'Sensel_Control_Pad' for $300.00
+Sally has given $300.00 back to their community. Thanks Sally!
+```
+
 ## Usage
 
 ### Command-line Interface
@@ -40,23 +57,6 @@ Commands:
     run        Streaming CLI
 ```
 
-Here are a few examples of usage:
-```
-> project Sensel_Control_Pad 250000.00
-Added project 'Sensel_Control_Pad' with a target goal of $250,000.00.
-
-> back Sally Sensel_Control_Pad 4773718568425957 300
-Sally backed project 'Sensel_Control_Pad' for $300.00.
-
-> list Sensel_Control_Pad
--- Sally backed for $300.00
-Sensel_Control_Pad needs $249,700.00 more dollars to be successful!
-
-> backer Sally
-Sally backed project 'Sensel_Control_Pad' for $300.00
-Sally has given $300.00 back to their community. Thanks Sally!
-```
-
 ### As a Library
 
 The Kickstarter client library is fully compatible with Cargo, and is available as a git dependency. Just add it to your `Cargo.toml`:
@@ -72,13 +72,13 @@ git = "https://github.com/kyeah/kick-rs"
 
 To build this project, you will need [Rust 1.0+](https://www.rust-lang.org) and its package manager, Cargo. The easiest way to get the current stable release of Rust and Cargo is using `rustup`:
 
-```
+```sh
 $ curl -sSf https://static.rust-lang.org/rustup.sh | sh
 ```
 
 This project also uses PostgreSQL for persistent storage. Before running ksr, ensure that you have PostgreSQL setup and running. 
 
-```
+```sh
 $ sudo apt-get install postgresql postgresql-contrib
 ```
 
@@ -88,7 +88,7 @@ You can [follow this guide](https://help.ubuntu.com/lts/serverguide/postgresql.h
 
 Thanks to Cargo, building Rust packages is really easy! 
 
-```
+```sh
 $ cargo build [--release]
 ```
 
@@ -96,7 +96,7 @@ The `ksr` binary executable will be built under `target/debug` or `target/releas
 
 ### Database Setup
 
-```
+```sh
 $ createdb <db_name> (default: kickstarter)
 $ cp data/sample-config.toml data/config.toml
 ```
@@ -109,7 +109,7 @@ uri = "postgres://<user>:<pass>@<ip>:<port>/kickstarter"
 
 Then build or rebuild the schema.
 
-```
+```sh
 $ ksr --build
 ```
 
@@ -119,7 +119,7 @@ This will bootstrap the database and regenerate the models in [src/db](src/db). 
 
 The integration tests rely on a live test database defined in [tests/data](tests/data). Make sure that the provided database exists and that the Rust tests are running on a single-thread before executing `cargo test`.
 
-```
+```sh
 $ createdb ksr-test
 $ cp tests/data/sample-config.toml tests/data/config.toml
 $ export RUST_TEST_THREADS=1
