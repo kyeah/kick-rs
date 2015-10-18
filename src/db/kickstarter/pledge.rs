@@ -48,9 +48,9 @@ pub struct Pledge {
 
 
 
-impl IsDao for Pledge{
-    fn from_dao(dao:&Dao)->Self{
-        Pledge{
+impl IsDao for Pledge {
+    fn from_dao(dao: &Dao) -> Self {
+        Pledge {
             user_id: dao.get(column::user_id),
             project_id: dao.get(column::project_id),
             amount: dao.get(column::amount),
@@ -61,7 +61,7 @@ impl IsDao for Pledge{
         }
     }
 
-    fn to_dao(&self)->Dao{
+    fn to_dao(&self) -> Dao {
         let mut dao = Dao::new();
         dao.set(column::user_id, &self.user_id);
         dao.set(column::project_id, &self.project_id);
@@ -72,82 +72,80 @@ impl IsDao for Pledge{
     }
 }
 
-impl ToJson for Pledge{
+impl ToJson for Pledge {
 
-    fn to_json(&self)->Json{
+    fn to_json(&self) -> Json {
         self.to_dao().to_json()
     }
 }
 
-impl IsTable for Pledge{
+impl IsTable for Pledge {
 
-    fn table()->Table{
-    
-        Table{
+    fn table() -> Table {
+        Table {
             schema: schema::kickstarter.to_owned(),
             name: table::pledge.to_owned(),
             parent_table: None,
             sub_table: vec![],
             comment: None,
-            columns:
-            vec![
-                Column{
+            columns: vec![
+                Column {
                     name: column::user_id.to_owned(),
                     data_type: "i32".to_owned(),
                     db_data_type: "integer".to_owned(),
-                    is_primary: true, is_unique: false, not_null: true, is_inherited: false, 
-                    default:None,
-                    comment:None,
+                    is_primary: true, is_unique: false, not_null: true, is_inherited: false,
+                    default: None,
+                    comment: None,
                     foreign: Some(
-                        Foreign{
-                            schema:"kickstarter".to_owned(),
-                            table:"user".to_owned(),
-                            column:"user_id".to_owned(),
+                        Foreign {
+                            schema: "kickstarter".to_owned(),
+                            table: "user".to_owned(),
+                            column: "user_id".to_owned(),
                         }),
                 },
-                Column{
+                Column {
                     name: column::project_id.to_owned(),
                     data_type: "i32".to_owned(),
                     db_data_type: "integer".to_owned(),
-                    is_primary: true, is_unique: false, not_null: true, is_inherited: false, 
-                    default:None,
-                    comment:None,
+                    is_primary: true, is_unique: false, not_null: true, is_inherited: false,
+                    default: None,
+                    comment: None,
                     foreign: Some(
-                        Foreign{
-                            schema:"kickstarter".to_owned(),
-                            table:"project".to_owned(),
-                            column:"project_id".to_owned(),
+                        Foreign {
+                            schema: "kickstarter".to_owned(),
+                            table: "project".to_owned(),
+                            column: "project_id".to_owned(),
                         }),
                 },
-                Column{
+                Column {
                     name: column::amount.to_owned(),
                     data_type: "f64".to_owned(),
                     db_data_type: "double precision".to_owned(),
-                    is_primary: false, is_unique: false, not_null: true, is_inherited: false, 
-                    default:None,
-                    comment:None,
+                    is_primary: false, is_unique: false, not_null: true, is_inherited: false,
+                    default: None,
+                    comment: None,
                     foreign: None,
                 },
-                Column{
+                Column {
                     name: column::card.to_owned(),
                     data_type: "String".to_owned(),
                     db_data_type: "text".to_owned(),
-                    is_primary: false, is_unique: true, not_null: true, is_inherited: false, 
-                    default:None,
-                    comment:None,
+                    is_primary: false, is_unique: true, not_null: true, is_inherited: false,
+                    default: None,
+                    comment: None,
                     foreign: None,
                 },
-                Column{
+                Column {
                     name: column::date_created.to_owned(),
                     data_type: "NaiveDateTime".to_owned(),
                     db_data_type: "timestamp without time zone".to_owned(),
-                    is_primary: false, is_unique: false, not_null: true, is_inherited: false, 
-                    default:Some("('now'::text)::timestamp without time zone".to_owned()),
-                    comment:None,
+                    is_primary: false, is_unique: false, not_null: true, is_inherited: false,
+                    default: Some("('now'::text)::timestamp without time zone".to_owned()),
+                    comment: None,
                     foreign: None,
                 },
             ],
-            is_view: false
+            is_view: false,
         }
     }
 }

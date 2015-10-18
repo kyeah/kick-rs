@@ -11,7 +11,7 @@ use db::kickstarter::Project;
 use db::kickstarter::User;
 
 
-pub fn get_all_tables()->Vec<Table>{
+pub fn get_all_tables() -> Vec<Table> {
     vec![
         Pledge::table(),
         Project::table(),

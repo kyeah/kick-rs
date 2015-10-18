@@ -38,9 +38,9 @@ pub struct User {
 
 
 
-impl IsDao for User{
-    fn from_dao(dao:&Dao)->Self{
-        User{
+impl IsDao for User {
+    fn from_dao(dao: &Dao) -> Self {
+        User {
             user_id: dao.get(column::user_id),
             name: dao.get(column::name),
             date_created: dao.get(column::date_created),
@@ -48,7 +48,7 @@ impl IsDao for User{
         }
     }
 
-    fn to_dao(&self)->Dao{
+    fn to_dao(&self) -> Dao {
         let mut dao = Dao::new();
         dao.set(column::user_id, &self.user_id);
         dao.set(column::name, &self.name);
@@ -57,54 +57,52 @@ impl IsDao for User{
     }
 }
 
-impl ToJson for User{
+impl ToJson for User {
 
-    fn to_json(&self)->Json{
+    fn to_json(&self) -> Json {
         self.to_dao().to_json()
     }
 }
 
-impl IsTable for User{
+impl IsTable for User {
 
-    fn table()->Table{
-    
-        Table{
+    fn table() -> Table {
+        Table {
             schema: schema::kickstarter.to_owned(),
             name: table::user.to_owned(),
             parent_table: None,
             sub_table: vec![],
             comment: None,
-            columns:
-            vec![
-                Column{
+            columns: vec![
+                Column {
                     name: column::user_id.to_owned(),
                     data_type: "i32".to_owned(),
                     db_data_type: "integer".to_owned(),
-                    is_primary: true, is_unique: false, not_null: true, is_inherited: false, 
-                    default:Some("nextval('kickstarter.user_user_id_seq'::regclass)".to_owned()),
-                    comment:None,
+                    is_primary: true, is_unique: false, not_null: true, is_inherited: false,
+                    default: Some("nextval('kickstarter.user_user_id_seq'::regclass)".to_owned()),
+                    comment: None,
                     foreign: None,
                 },
-                Column{
+                Column {
                     name: column::name.to_owned(),
                     data_type: "String".to_owned(),
                     db_data_type: "text".to_owned(),
-                    is_primary: false, is_unique: true, not_null: true, is_inherited: false, 
-                    default:None,
-                    comment:None,
+                    is_primary: false, is_unique: true, not_null: true, is_inherited: false,
+                    default: None,
+                    comment: None,
                     foreign: None,
                 },
-                Column{
+                Column {
                     name: column::date_created.to_owned(),
                     data_type: "NaiveDateTime".to_owned(),
                     db_data_type: "timestamp without time zone".to_owned(),
-                    is_primary: false, is_unique: false, not_null: true, is_inherited: false, 
-                    default:Some("('now'::text)::timestamp without time zone".to_owned()),
-                    comment:None,
+                    is_primary: false, is_unique: false, not_null: true, is_inherited: false,
+                    default: Some("('now'::text)::timestamp without time zone".to_owned()),
+                    comment: None,
                     foreign: None,
                 },
             ],
-            is_view: false
+            is_view: false,
         }
     }
 }
