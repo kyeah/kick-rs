@@ -6,8 +6,6 @@ use kickstarter::models::Project;
 use kickstarter::db::table;
 
 use postgres::error::SqlState;
-use rustorm::dao::FromValue;
-use rustorm::query::Query;
 
 #[test]
 fn create_project() {

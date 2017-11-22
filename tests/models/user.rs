@@ -4,9 +4,6 @@ use ::{init_client, init_test_projects, init_test_pledges,
 use kickstarter::models::User;
 use kickstarter::db::{column, table};
 
-use rustorm::query::{Equality, Query};
-use rustorm::dao::FromValue;
-
 #[test]
 fn upsert_user() {
     let client = init_client();

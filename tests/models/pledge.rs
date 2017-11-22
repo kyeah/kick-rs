@@ -6,7 +6,6 @@ use kickstarter::models::Pledge;
 use kickstarter::db::table;
 
 use postgres::error::SqlState;
-use rustorm::query::Query;
 
 #[test]
 fn create_pledge() {

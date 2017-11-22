@@ -2,13 +2,9 @@
 pub use models::Pledge;
 
 use {validate, Client, Result};
-use db::{column, table};
 use models::{Project, User};
 
 use postgres::error::SqlState;
-use rustorm::database::DbError;
-use rustorm::query::Query;
-
 use std::error::Error as ErrorTrait;
 
 impl Pledge {

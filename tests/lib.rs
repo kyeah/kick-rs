@@ -1,6 +1,5 @@
 extern crate kickstarter;
 extern crate postgres;
-extern crate rustorm;
 
 mod models;
 

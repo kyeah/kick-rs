@@ -96,6 +96,8 @@ fn main() {
     let args: Args = docopt.clone().decode()
         .unwrap_or_else(|e| e.exit());
 
+    dotenv().ok();
+
     // Print the library version.
     if args.flag_version {
         println!("{}", version!());
@@ -108,7 +110,16 @@ fn main() {
     }
 
     // Connect to the database.
-    let client = match Client::with_config(&args.flag_config, args.flag_build, true) {
+    let database_schema = env::var("DATABASE_SCHEMA").unwrap_or_else(|| DEFAULT_SCHEMA);
+    let database_url = match env::var("DATABASE_URL") {
+        Ok(url) => url,
+        Err(ref e) => {
+            println("ERROR: {} \n\n", e);
+            return;
+        }
+    };
+
+    let client = match Client::new(&database_url, &database_schema) {
         Ok(client) => client,
         Err(ref e) => {
             println!("ERROR: {} \n\n\

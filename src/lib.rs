@@ -42,25 +42,39 @@
 //! ```
 
 #[macro_use]
+extern crate diesel;
+#[macro_use]
+extern crate diesel_codegen;
+extern crate dotenv;
+#[macro_use]
 extern crate lazy_static;
-
 extern crate chrono;
-extern crate codegenta;
 extern crate postgres;
 extern crate regex;
-extern crate rustc_serialize;
-extern crate rustorm;
 extern crate toml;
 
-pub mod db;
+pub mod schema;
+pub mod models;
 pub mod pledge;
 pub mod project;
 pub mod user;
 pub mod validate;
-
 mod client;
 mod error;
 
-pub use db::kickstarter as models;
 pub use client::Client;
 pub use error::{Error, Result};
+
+use diesel::prelude::*;
+use diesel::pg::PgConnection;
+use dotenv::dotenv;
+use std::env;
+
+pub fn establish_connection() -> PgConnection {
+    dotenv().ok();
+
+    let database_url = env::var("DATABASE_URL")
+        .expect("DATABASE_URL must be set");
+    PgConnection::establish(&database_url)
+        .expect(&format!("Error connecting to {}", database_url))
+}
