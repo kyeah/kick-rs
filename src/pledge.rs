@@ -1,27 +1,31 @@
 //! Module for interacting with Kickstarter pledges.
-pub use models::Pledge;
-
 use {validate, Client, Result};
-use models::{Project, User};
+use models::{NewPledge, Pledge, Project, User};
+use schema::{pledges, projects, users};
 
-use postgres::error::SqlState;
+use diesel::{self, PgConnection};
+use postgres::error::{DbError, SqlState};
 use std::error::Error as ErrorTrait;
 
 impl Pledge {
-
     /// Returns a reference to the user that made the pledge.
-    pub fn get_user(&self) -> &User {
-        self.user.as_ref().unwrap()
+    pub fn get_user(&self, client: &Client) -> &User {
+        users::table.find(1)
+            .filter(users::user_id.eq(self.user_id))
+            .first(client.db())
+            .unwrap()
     }
     
     /// Returns a reference to the project that the pledge is for.
-    pub fn get_project(&self) -> &Project {
-        self.project.as_ref().unwrap()
+    pub fn get_project(&self, client: &Client) -> &Project {
+        projects::table.find(1)
+            .filter(projects::project_id.eq(self.project_id))
+            .first(client.db())
+            .unwrap()
     }
 
     /// Creates a new pledge for an existing project.
     pub fn create(client: &Client, user: &str, project_name: &str, card: &str, amount: f64) -> Result<Pledge> {
-
         try!(Pledge::validate_args(user, project_name, card));
 
         // Validate and truncate currency amount.
@@ -30,16 +34,15 @@ impl Pledge {
         let uid = try!(User::upsert(client, user));
         let pid = try!(Project::get_id(client, project_name));
 
-        // Add a new pledge.
-        let mut res = Query::insert()
-            .set(column::user_id, &uid)
-            .set(column::project_id, &pid)
-            .set(column::card, &card)
-            .set(column::amount, &amount)
-            .into_table(&client.table(table::pledge))
-            .return_all()
-            .collect_one(client.db());
+        let new_pledge = NewPledge {
+            user_id: uid,
+            project_id: pid,
+            card: card,
+            amount: amount,
+        };
 
+        // Add a new pledge.
+        let mut res = diesel::insert(&new_pledge).into(pledges::table).get_result(client.db());
         Pledge::check_valid_errors(&mut res, user, project_name, card);
 
         let pledge = try!(res);
