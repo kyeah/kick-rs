@@ -1,4 +1,5 @@
 //! Kickstarter errors
+use diesel;
 use validate;
 use std::{error, fmt, io, result};
 
@@ -13,7 +14,7 @@ pub enum Error {
     /// An error occurred with the provided configuration.
     Config(String),
     /// A database operation could not be completed.
-    Database(database::DbError),
+    Database(diesel::result::Error),
     /// An I/O operation could not be completed.
     IO(io::Error),
 }
@@ -24,8 +25,8 @@ impl From<validate::Error> for Error {
     }
 }
 
-impl From<database::DbError> for Error {
-    fn from(err: database::DbError) -> Error {
+impl From<diesel::result::Error> for Error {
+    fn from(err: diesel::Result::Error) -> Error {
         Error::Database(err)
     }
 }

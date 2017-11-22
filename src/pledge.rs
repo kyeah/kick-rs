@@ -3,13 +3,13 @@ use {validate, Client, Result};
 use models::{NewPledge, Pledge, Project, User};
 use schema::{pledges, projects, users};
 
-use diesel::{self, PgConnection};
+use diesel::{self, ExpressionMethods, FilterDsl, FindDsl, FirstDsl, LoadDsl};
 use postgres::error::{DbError, SqlState};
 use std::error::Error as ErrorTrait;
 
 impl Pledge {
     /// Returns a reference to the user that made the pledge.
-    pub fn get_user(&self, client: &Client) -> &User {
+    pub fn get_user(&self, client: &Client) -> User {
         users::table.find(1)
             .filter(users::user_id.eq(self.user_id))
             .first(client.db())
@@ -17,7 +17,7 @@ impl Pledge {
     }
     
     /// Returns a reference to the project that the pledge is for.
-    pub fn get_project(&self, client: &Client) -> &Project {
+    pub fn get_project(&self, client: &Client) -> Project {
         projects::table.find(1)
             .filter(projects::project_id.eq(self.project_id))
             .first(client.db())
@@ -37,12 +37,15 @@ impl Pledge {
         let new_pledge = NewPledge {
             user_id: uid,
             project_id: pid,
-            card: card,
+            card: card.into(),
             amount: amount,
         };
 
         // Add a new pledge.
-        let mut res = diesel::insert(&new_pledge).into(pledges::table).get_result(client.db());
+        let mut res = diesel::insert(&new_pledge)
+            .into(pledges::table)
+            .get_result(client.db());
+
         Pledge::check_valid_errors(&mut res, user, project_name, card);
 
         let pledge = try!(res);
@@ -50,7 +53,7 @@ impl Pledge {
     }
 
     /// Checks pledge creation results for acceptable errors, and reformats the message.
-    fn check_valid_errors(res: &mut ::std::result::Result<Pledge, DbError>,
+    fn check_valid_errors(res: &mut ::std::result::Result<Pledge, dieselError>,
                           user: &str, project_name: &str, card: &str) {
 
         // Check for uniqueness violations.

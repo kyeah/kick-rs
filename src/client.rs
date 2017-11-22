@@ -2,6 +2,7 @@
 use {Error, Result};
 use models::{Pledge, Project, User};
 
+use diesel::PgConnection;
 use std::fs::File;
 use std::io::Read;
 use toml;
@@ -40,7 +41,7 @@ impl Client {
 
     /// Returns a reference to the encapsulated database.
     pub fn db(&self) -> &PgConnection {
-        self.db.as_ref()
+        &self.db
     }
     
     /// Returns the full table namespace.

@@ -1,18 +1,15 @@
 //! Module for interacting with Kickstarter projects.
-pub use models::Project;
+use {validatPledgee, Client, Result};
+use models::{NewProject, Project, Pledge, User};
+use schema::projects;
 
-use {validate, Client, Result};
-use models::{Pledge, User};
-
-use postgres::error::SqlState;
+use diesel::{self, BelongingToDsl, ExpressionMethods, FilterDsl, FindDsl, FirstDsl};
 use std::convert::From;
 
 impl Project {
-
     /// Creates a new Kickstarter project with the provided goal amount in dollars.
     /// Returns the created project on success.
     pub fn create(client: &Client, project_name: &str, amount: f64) -> Result<Project> {
-
         // Names must be alphanumeric and between 4 & 20 characters.
         try!(validate::length(project_name, 4, 20));
         try!(validate::alphanumeric(project_name));
@@ -21,12 +18,14 @@ impl Project {
         let amount = try!(validate::currency(amount));
 
         // Attempt to insert project into the table...
-        let mut result = Query::insert()
-            .set(column::name, &project_name)
-            .set(column::goal, &amount)
-            .into_table(&client.table(table::project))
-            .return_all()
-            .collect_one(client.db());
+        let new_project = NewProject {
+            name: project_name,
+            goal: amount,
+        };
+
+        let mut result = diesel::insert(&new_project)
+            .into(projects::table)
+            .get_result(client.db());
 
         // and catch uniqueness violations to return a custom error.
         Project::check_valid_errors(&mut result, project_name);
@@ -36,14 +35,11 @@ impl Project {
     }
 
     /// Checks project creation results for acceptable errors, and reformats the message.
-    fn check_valid_errors(res: &mut ::std::result::Result<Project, DbError>, project_name: &str) {
-
+    fn check_valid_errors(res: &mut ::std::result::Result<Project, diesel::result::Error>, project_name: &str) {
         let mut message = String::new();        
 
-        if let &mut Err(ref err) = res {
-            if let Some(SqlState::UniqueViolation) = err.code {
-                message = format!("Project '{}' already exists!", project_name);
-            }
+        if let &mut Err(DatabaseError(UniqueViolation, _)) = res {
+            message = format!("Project '{}' already exists!", project_name);
         }
 
         if !message.is_empty() {
@@ -52,61 +48,23 @@ impl Project {
     }
 
     /// Retrieve a project ID by name.
-    pub fn get_id(client: &Client, project_name: &str) -> Result<Value> {
-        let result = try!(Query::select()
-                          .column(column::project_id)
-                          .from_table(&client.table(table::project))
-                          .filter(column::name, Equality::EQ, &project_name)
-                          .retrieve(client.db()));
-
-        if result.dao.is_empty() {
-            Err(From::from(validate::Error::ProjectDoesNotExist))
-        } else {
-            let id = result.dao[0].values.get(column::project_id).unwrap();
-            Ok(id.clone())
-        }
+    pub fn get_id(client: &Client, project_name: &str) -> Result<i32> {
+        projects::select(projects::project_id)
+            .filter(projects::name.eq(project_name))
+            .first(client.db())
+            .map_err(|_| Err(From::from(validate::Error::ProjectDoesNotExist)))
     }
 
     /// Returns a list of all projects on Kickstarter.
     pub fn list_all(client: &Client) -> Result<Vec<Project>> {
-        let results: Vec<Project> = try!(Query::select_all()
-            .from_table(&client.table(table::project))
-            .collect(client.db()));
-
-        Ok(results)
+        projects::load(client.db())
     }
 
     /// Retrieves a list of all pledges for a given project. Returns a list of 
     /// all pledges with user information, as well as the overall project goal amount.
     pub fn list_pledges(client: &Client, project_name: &str) -> Result<(Vec<Pledge>, f64)> {
-        let mut dao_results = try!(Query::select()
-            .column(&"us.*")
-            .column(&"pl.*")
-            .column(&"pr.goal")
-            .from_table(&client.table_abbr(table::project))
-            .left_join_table(&client.table_abbr(table::pledge), &"pl.project_id", &"pr.project_id")
-            .left_join_table(&client.table_abbr(table::user), &"pl.user_id", &"us.user_id")
-            .filter(&"pr.name", Equality::EQ, &project_name)
-            .retrieve(client.db()));
-
-        if dao_results.dao.is_empty() {
-            return Err(From::from(validate::Error::ProjectDoesNotExist));
-        }
-
-        let goal = dao_results.dao[0].get_value(column::goal);        
-
-        dao_results.dao.retain(|dao| {
-            dao.get_value(column::amount) != Value::Null
-        });
-
-        // Map users to pledges
-        let mut users: Vec<User> = dao_results.cast();
-        let mut pledges: Vec<Pledge> = dao_results.cast();
-
-        for i in (0..pledges.len()).rev() {
-            pledges[i].user = Some(users.pop().unwrap());
-        }
-
-        Ok((pledges, FromValue::from_type(goal)))
+        let project = try!(projects::table.find(1).filter(projects::name.eq(project_name)).first(client.db()));
+        let pledges = try!(Pledge::belonging_to(&project).get_results(client.db()));
+        Ok((pledges, project.goal))
     }
 }

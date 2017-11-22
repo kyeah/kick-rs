@@ -1,6 +1,8 @@
+pub use schema::pledges;
+
+use std::borrow::Cow;
 use chrono::NaiveDateTime;
 use models::{User, Project};
-use schema::pledges;
 
 #[derive(Debug, Clone, Identifiable, Queryable, Associations)]
 #[primary_key(project_id, user_id)]
@@ -19,11 +21,11 @@ pub struct Pledge {
 
 #[derive(Debug, Clone, Insertable)]
 #[table_name="pledges"]
-pub struct NewPledge {
+pub struct NewPledge<'a> {
     /// primary
     pub project_id: i32,
     /// primary
     pub user_id: i32,
-    pub card: String,
+    pub card: Cow<'a, str>,
     pub amount: f64,
 }

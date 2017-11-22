@@ -1,6 +1,6 @@
-use chrono::NaiveDateTime;
-use schema::projects;
+pub use schema::projects;
 
+use chrono::NaiveDateTime;
 use std::cmp::Ordering;
 
 #[derive(Debug, Clone, Identifiable, Queryable)]

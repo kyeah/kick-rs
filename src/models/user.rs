@@ -1,7 +1,8 @@
-use chrono::NaiveDateTime;
-use schema::users;
+pub use schema::users::table;
 
+use chrono::NaiveDateTime;
 use std::cmp::Ordering;
+use schema::users;
 
 #[derive(Debug, Clone, Identifiable, Queryable)]
 #[primary_key(user_id)]
